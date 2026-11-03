@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101a35">
+  <title>سامانه آزمون مدرسه</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap');
+    :root{--bg:#f4f6fb;--card:#fff;--ink:#17213b;--muted:#7d879d;--primary:#5267e8;--line:#e9edf5;--green:#16a477;--orange:#e99a35;--shadow:0 12px 34px rgba(28,43,85,.07)}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:'Vazirmatn',Tahoma,sans-serif;color:var(--ink)}button{font:inherit;cursor:pointer}.app{max-width:1040px;margin:auto;min-height:100vh;padding-bottom:38px}
+    .hero{background:linear-gradient(130deg,#111b39,#293b78 65%,#5267e8);color:#fff;padding:28px 22px 58px;border-radius:0 0 30px 30px;position:relative;overflow:hidden}.hero:before,.hero:after{content:"";position:absolute;border:1px solid #ffffff18;border-radius:50%;width:240px;height:240px;left:-70px;top:-130px}.hero:after{width:160px;height:160px;left:80px;top:-95px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative;z-index:1}.brand{display:flex;align-items:center;gap:11px}.logo{width:43px;height:43px;border-radius:14px;background:#ffffff20;display:grid;place-items:center;font-size:23px}.brand small{display:block;color:#cbd3f3;font-size:11px;margin-top:2px}.avatar{width:39px;height:39px;border:1px solid #ffffff55;border-radius:50%;display:grid;place-items:center;background:#ffffff17}.welcome{position:relative;z-index:1;margin-top:30px}.welcome h1{font-size:23px;margin:0 0 6px;font-weight:800}.welcome p{margin:0;color:#d3daf6;font-size:13px}.content{padding:0 18px;margin-top:-34px;position:relative;z-index:2}.summary{background:var(--card);border-radius:20px;padding:17px;box-shadow:var(--shadow);display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{text-align:center;border-left:1px solid var(--line)}.stat:last-child{border:0}.stat b{display:block;font-size:21px;color:var(--primary)}.stat span{font-size:11px;color:var(--muted)}
+    .section-head{display:flex;justify-content:space-between;align-items:center;margin:26px 2px 13px}.section-head h2{font-size:16px;margin:0}.section-head small{color:var(--muted);font-size:11px}.tabs{display:flex;gap:8px;overflow:auto;padding:2px 0 12px}.tab{white-space:nowrap;border:1px solid var(--line);background:#fff;color:#65708a;padding:8px 14px;border-radius:12px;font-size:12px}.tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}.exam-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.exam{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 5px 18px #26385d08}.exam-top{display:flex;align-items:center;justify-content:space-between;gap:8px}.subject{display:flex;align-items:center;gap:10px}.subject-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:21px;background:#edf0ff}.subject h3{font-size:14px;margin:0}.subject p{font-size:11px;color:var(--muted);margin:3px 0 0}.badge{font-size:10px;padding:5px 9px;border-radius:20px;background:#e8f8f1;color:#12865f;white-space:nowrap}.badge.soon{background:#fff4e4;color:#b9781d}.exam-info{display:flex;gap:15px;color:var(--muted);font-size:11px;margin:17px 0 14px}.exam-info span{display:flex;align-items:center;gap:5px}.exam-foot{border-top:1px solid var(--line);padding-top:12px;display:flex;align-items:center;justify-content:space-between;gap:8px}.exam-foot small{font-size:10px;color:var(--muted)}.btn{border:0;border-radius:10px;padding:8px 13px;background:var(--primary);color:#fff;font-size:11px;font-weight:700}.btn:disabled{background:#e8ebf2;color:#9aa2b4;cursor:not-allowed}.empty{display:none;background:#fff;border:1px dashed #d9deeb;border-radius:16px;padding:28px;text-align:center;color:var(--muted);font-size:13px;grid-column:1/-1}.footer{text-align:center;color:#a0a8b8;font-size:10px;margin:30px 0 0}
+    .modal-wrap{display:none;position:fixed;inset:0;background:#10182c99;z-index:10;align-items:center;justify-content:center;padding:18px}.modal-wrap.show{display:flex}.modal{background:#fff;width:min(440px,100%);border-radius:22px;padding:22px;box-shadow:0 20px 70px #0003}.modal h3{margin:0 0 9px;font-size:17px}.modal p{font-size:12px;color:var(--muted);line-height:2}.modal-actions{display:flex;gap:9px;margin-top:18px}.secondary{background:#f0f2f8;color:#56617a}.notice{margin-top:15px;background:#f0f3ff;border:1px solid #e0e6ff;border-radius:13px;padding:11px 13px;color:#5969bd;font-size:11px;line-height:1.9}
+    @media(max-width:650px){.hero{padding:22px 17px 54px}.welcome h1{font-size:20px}.content{padding:0 13px}.summary{padding:14px 8px}.stat b{font-size:19px}.stat span{font-size:10px}.exam-list{grid-template-columns:1fr}.exam{padding:14px}.section-head{margin-top:23px}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div class="top">
+        <div class="brand"><div class="logo">🎓</div><div><strong>سامانه آزمون مدرسه</strong><small>محیط هوشمند ارزیابی دانش‌آموزان</small></div></div>
+        <div class="avatar" aria-label="پروفایل">👤</div>
+      </div>
+      <div class="welcome"><h1>آماده‌ای خودت رو بسنجی؟</h1><p>آزمون‌هات رو ببین و برای بهترین نتیجه آماده شو.</p></div>
+    </header>
+    <section class="content">
+      <div class="summary">
+        <div class="stat"><b id="activeCount">۲</b><span>آزمون فعال</span></div>
+        <div class="stat"><b>۰</b><span>آزمون شرکت‌کرده</span></div>
+        <div class="stat"><b>—</b><span>میانگین نمرات</span></div>
+      </div>
+      <div class="section-head"><h2>آزمون‌های من</h2><small>آزمون موردنظرت رو انتخاب کن</small></div>
+      <nav class="tabs" aria-label="فیلتر آزمون‌ها">
+        <button class="tab active" data-filter="all">همه آزمون‌ها</button>
+        <button class="tab" data-filter="active">آزمون‌های فعال</button>
+        <button class="tab" data-filter="upcoming">آزمون‌های آینده</button>
+        <button class="tab" data-filter="past">آزمون‌های گذشته</button>
+      </nav>
+      <section class="exam-list" id="examList">
+        <article class="exam" data-status="active">
+          <div class="exam-top"><div class="subject"><div class="subject-icon">🧬</div><div><h3>زیست‌شناسی</h3><p>فصل اول · دنیای زنده</p></div></div><span class="badge">فعال</span></div>
+          <div class="exam-info"><span>📝 ۲۰ سؤال</span><span>⏱️ ۳۰ دقیقه</span></div>
+          <div class="exam-foot"><small>نمونه نمایشی</small><button class="btn start-btn" data-title="آزمون زیست‌شناسی">مشاهده آزمون</button></div>
+        </article>
+        <article class="exam" data-status="active">
+          <div class="exam-top"><div class="subject"><div class="subject-icon" style="background:#fff3e8">⚗️</div><div><h3>شیمی</h3><p>فصل اول · قدر هدایای زمینی را بدانیم</p></div></div><span class="badge">فعال</span></div>
+          <div class="exam-info"><span>📝 ۱۵ سؤال</span><span>⏱️ ۲۵ دقیقه</span></div>
+          <div class="exam-foot"><small>نمونه نمایشی</small><button class="btn start-btn" data-title="آزمون شیمی">مشاهده آزمون</button></div>
+        </article>
+        <article class="exam" data-status="upcoming">
+          <div class="exam-top"><div class="subject"><div class="subject-icon" style="background:#eaf7ff">📐</div><div><h3>ریاضی</h3><p>فصل اول · هندسه تحلیلی</p></div></div><span class="badge soon">به‌زودی</span></div>
+          <div class="exam-info"><span>📝 ۱۰ سؤال</span><span>⏱️ ۲۰ دقیقه</span></div>
+          <div class="exam-foot"><small>نمونه نمایشی</small><button class="btn" disabled>هنوز فعال نشده</button></div>
+        </article>
+        <div class="empty" id="emptyState">در این دسته هنوز آزمونی وجود ندارد.</div>
+      </section>
+      <div class="notice">ℹ️ این نسخه، پیش‌نمایش ظاهری مینی‌اپ است. آزمون‌ها و اطلاعات نمایش‌داده‌شده نمونه هستند و هنوز به پایگاه داده و ربات بله متصل نشده‌اند.</div>
+      <div class="footer">سامانه آزمون مدرسه · نسخه آزمایشی رابط کاربری</div>
+    </section>
+  </main>
+  <div class="modal-wrap" id="modalWrap" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal"><h3 id="modalTitle">مشخصات آزمون</h3><p id="modalText">این آزمون نمونه است و هنوز امکان شروع واقعی آن فعال نشده است.</p><div class="notice">پس از اتصال سامانه به ربات، پاسخ‌ها و نمرات شما به‌صورت امن ثبت خواهند شد.</div><div class="modal-actions"><button class="btn secondary" id="closeModal">بازگشت</button><button class="btn" id="confirmModal">متوجه شدم</button></div></div>
+  </div>
+  <script>
+    const tabs=[...document.querySelectorAll('.tab')];
+    const cards=[...document.querySelectorAll('.exam')];
+    const empty=document.getElementById('emptyState');
+    tabs.forEach(tab=>tab.addEventListener('click',()=>{
+      tabs.forEach(t=>t.classList.toggle('active',t===tab));
+      const filter=tab.dataset.filter;let shown=0;
+      cards.forEach(card=>{const visible=filter==='all'||card.dataset.status===filter;card.style.display=visible?'':'none';if(visible)shown++;});
+      empty.style.display=shown?'none':'block';
+    }));
+    const wrap=document.getElementById('modalWrap');
+    const close=()=>wrap.classList.remove('show');
+    document.querySelectorAll('.start-btn').forEach(btn=>btn.addEventListener('click',()=>{
+      document.getElementById('modalTitle').textContent=btn.dataset.title;
+      document.getElementById('modalText').textContent='این آزمون در پیش‌نمایش رابط کاربری قرار دارد. برای برگزاری واقعی، ابتدا باید پنل معلم و اتصال به اطلاعات آزمون‌ها را پیاده‌سازی کنیم.';
+      wrap.classList.add('show');
+    }));
+    document.getElementById('closeModal').addEventListener('click',close);
+    document.getElementById('confirmModal').addEventListener('click',close);
+    wrap.addEventListener('click',e=>{if(e.target===wrap)close();});
+  </script>
+</body>
+</html>
