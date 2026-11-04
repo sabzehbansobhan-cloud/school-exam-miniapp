@@ -86,7 +86,45 @@ function loadTeacherExams(){hideAllViews();document.getElementById('teacherExamL
 function loadBootstrap(){notice('در حال دریافت آزمون‌ها…');api('bootstrap').then(data=>{hideNotice();document.getElementById('welcome').textContent=`${data.profile.firstName} ${data.profile.lastName} | پایه ${data.profile.grade} | ${data.profile.track}`;if(data.profile.role==='teacher'){hideAllViews();document.getElementById('teacherView').classList.remove('hidden');loadQuestions('personal')}else{renderExams(data.exams||[])}}).catch(e=>notice(e.message))}
 function renderExams(exams){document.getElementById('listView').classList.remove('hidden');document.getElementById('examView').classList.add('hidden');document.getElementById('resultView').classList.add('hidden');const box=document.getElementById('examList');box.innerHTML='';if(!exams.length){box.innerHTML='<p class="muted">در حال حاضر آزمون فعالی برای شما وجود ندارد.</p>';return}exams.forEach(ex=>{const el=document.createElement('div');el.className='exam';const state=ex.status==='upcoming'?'هنوز شروع نشده':ex.status==='past'?'مهلت تمام شده':'آماده شرکت';el.innerHTML=`<div class="row"><div><h3>${esc(ex.title)}</h3><div class="muted">${esc(ex.subject)} | ${ex.questionCount||0} سؤال | ${ex.durationMinutes||'—'} دقیقه</div></div><span class="pill">${state}</span></div><div style="margin-top:12px"><button class="btn" ${ex.status!=='active'?'disabled':''}>شروع / ادامه آزمون</button></div>`;el.querySelector('button').onclick=()=>startExam(ex.examId);box.appendChild(el)})}
 function startExam(id){notice('در حال آماده‌سازی آزمون…');api('start',{examId:id}).then(data=>{hideNotice();active=data;answerState=data.answers||{};document.getElementById('listView').classList.add('hidden');document.getElementById('resultView').classList.add('hidden');document.getElementById('examView').classList.remove('hidden');document.getElementById('examTitle').textContent=data.title;document.getElementById('examMeta').textContent=`${data.subject||''} | ${data.questions.length} سؤال`;renderQuestions(data.questions);startTimer(data.startedAt,data.durationMinutes)}).catch(e=>notice(e.message))}
-function renderQuestions(qs){const root=document.getElementById('questions');root.innerHTML='';qs.forEach((q,i)=>{const box=document.createElement('div');box.className='qbox';box.innerHTML=`<p class="qtitle">سؤال ${i+1}. ${esc(q.text)}</p>`;[['A',q.a],['B',q.b],['C',q.c],['D',q.d]].forEach(([key,val])=>{const label=document.createElement('label');label.className='opt';const input=document.createElement('input');input.type='radio';input.name='q_'+q.questionId;input.value=key;input.checked=answerState[q.questionId]===key;input.onchange=()=>choose(q.questionId,key);const span=document.createElement('span');span.textContent=key+' ـ '+val;label.append(input,span);box.appendChild(label)});root.appendChild(box)});updateCount()}
+function renderQuestions(qs){
+ const root=document.getElementById('questions');
+ root.innerHTML='';
+ qs.forEach((q,i)=>{
+  const box=document.createElement('div');
+  box.className='qbox';
+  const title=document.createElement('p');
+  title.className='qtitle';
+  title.textContent=`سؤال ${i+1}. ${q.text||''}`;
+  box.appendChild(title);
+  if(q.image){
+   const image=document.createElement('img');
+   image.src=q.image;
+   image.alt=`تصویر سؤال ${i+1}`;
+   image.loading='lazy';
+   image.style.cssText='display:block;width:auto;max-width:100%;max-height:420px;height:auto;object-fit:contain;margin:12px auto 18px;border-radius:12px';
+   image.onerror=()=>{
+    const warning=document.createElement('div');
+    warning.className='muted';
+    warning.textContent='تصویر این سؤال بارگذاری نشد.';
+    image.replaceWith(warning);
+   };
+   box.appendChild(image);
+  }
+  [['A',q.a],['B',q.b],['C',q.c],['D',q.d]].forEach(([key,val])=>{
+   const label=document.createElement('label');
+   label.className='opt';
+   const input=document.createElement('input');
+   input.type='radio';input.name='q_'+q.questionId;input.value=key;
+   input.checked=answerState[q.questionId]===key;
+   input.onchange=()=>choose(q.questionId,key);
+   const span=document.createElement('span');
+   span.textContent=key+' ـ '+(val||'');
+   label.append(input,span);box.appendChild(label);
+  });
+  root.appendChild(box);
+ });
+ updateCount();
+}
 function choose(qid,opt){answerState[qid]=opt;updateCount();saving++;api('answer',{attemptId:active.attemptId,questionId:qid,option:opt}).then(()=>{}).catch(e=>notice('ذخیره پاسخ با خطا روبه‌رو شد: '+e.message)).finally(()=>{saving=Math.max(0,saving-1)})}
 function updateCount(){document.getElementById('answeredCount').textContent=`پاسخ داده‌شده: ${Object.keys(answerState).length} از ${active.questions.length}`}
 function startTimer(started,duration){clearInterval(timerHandle);if(!duration){document.getElementById('timer').textContent='بدون محدودیت';return}const deadline=new Date(started).getTime()+duration*60000;function tick(){remaining=Math.max(0,Math.floor((deadline-Date.now())/1000));const m=String(Math.floor(remaining/60)).padStart(2,'0'),s=String(remaining%60).padStart(2,'0');document.getElementById('timer').textContent=m+':'+s;if(remaining<=0){clearInterval(timerHandle);submitExam(true)}}tick();timerHandle=setInterval(tick,1000)}
