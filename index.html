@@ -52,7 +52,14 @@ function hideAllViews(){['teacherView','questionForm','examBuilder','teacherExam
 function openQuestionForm(q){editQuestionId=q?q.questionId:'';selectedImageUrl=q?q.image||'':'';hideAllViews();document.getElementById('questionForm').classList.remove('hidden');document.getElementById('qFormTitle').textContent=q?'ویرایش سؤال':'افزودن سؤال';const f=document.getElementById('qForm');f.reset();if(q){Object.keys(q).forEach(k=>{if(f.elements[k])f.elements[k].value=q[k]||''})}document.getElementById('imageState').textContent=selectedImageUrl?'تصویر قبلی متصل است.':''}
 function backToBank(){hideAllViews();document.getElementById('teacherView').classList.remove('hidden');loadQuestions(currentScope)}
 function debouncedQuestions(){clearTimeout(questionTimer);questionTimer=setTimeout(()=>loadQuestions(currentScope),350)}
-function loadQuestions(scope){currentScope=scope||currentScope;document.getElementById('bankTitle').textContent=currentScope==='personal'?'بانک شخصی من':'بانک مشترک مدرسه';api('teacherQuestions',{scope:currentScope,q:document.getElementById('searchQ').value}).then(d=>{const root=document.getElementById('questionList');root.innerHTML='';if(!d.questions.length){root.innerHTML='<p class="muted">سؤالی در این بخش ثبت نشده است.</p>';return}d.questions.forEach(q=>{const el=document.createElement('div');el.className='exam';el.innerHTML=`<b>${esc(q.subject)} | ${esc(q.chapter)} | ${esc(q.difficulty)}</b><p>${esc(q.text)}</p><div class="muted">پایه ${esc(q.grade)} | ${esc(q.track)} | ${q.visibility==='shared'?'مشترک':'شخصی'} | ${q.status==='active'?'فعال':'غیرفعال'}</div>${q.image?`<img src="${esc(q.image)}" style="max-width:100%;max-height:180px">`:''}<div class="row"></div>`;const row=el.querySelector('.row');if(q.canEdit){const e=document.createElement('button');e.className='btn secondary';e.textContent='ویرایش';e.onclick=()=>openQuestionForm(q);const t=document.createElement('button');t.className='btn danger';t.textContent=q.status==='active'?'غیرفعال‌کردن':'فعال‌کردن';t.onclick=()=>api('teacherToggleQuestion',{questionId:q.questionId}).then(()=>loadQuestions(currentScope)).catch(x=>notice(x.message));row.append(e,t)}root.appendChild(el)})}).catch(e=>notice(e.message))}
+function getDisplayImageUrl(raw){
+ const value=String(raw||'').trim();
+ if(!value)return '';
+ const match=value.match(/[?&]id=([a-zA-Z0-9_-]+)/) || value.match(/\/d\/([a-zA-Z0-9_-]+)/);
+ if(match && /drive\.google\.com/i.test(value)) return 'https://drive.google.com/thumbnail?id='+encodeURIComponent(match[1])+'&sz=w1200';
+ return value;
+}
+function loadQuestions(scope){currentScope=scope||currentScope;document.getElementById('bankTitle').textContent=currentScope==='personal'?'بانک شخصی من':'بانک مشترک مدرسه';api('teacherQuestions',{scope:currentScope,q:document.getElementById('searchQ').value}).then(d=>{const root=document.getElementById('questionList');root.innerHTML='';if(!d.questions.length){root.innerHTML='<p class="muted">سؤالی در این بخش ثبت نشده است.</p>';return}d.questions.forEach(q=>{const el=document.createElement('div');el.className='exam';el.innerHTML=`<b>${esc(q.subject)} | ${esc(q.chapter)} | ${esc(q.difficulty)}</b><p>${esc(q.text)}</p><div class="muted">پایه ${esc(q.grade)} | ${esc(q.track)} | ${q.visibility==='shared'?'مشترک':'شخصی'} | ${q.status==='active'?'فعال':'غیرفعال'}</div>${q.image?`<img src="${esc(getDisplayImageUrl(q.image))}" referrerpolicy="no-referrer" style="display:block;max-width:100%;max-height:220px;object-fit:contain;margin:10px auto;border-radius:10px">`:''}<div class="row"></div>`;const row=el.querySelector('.row');if(q.canEdit){const e=document.createElement('button');e.className='btn secondary';e.textContent='ویرایش';e.onclick=()=>openQuestionForm(q);const t=document.createElement('button');t.className='btn danger';t.textContent=q.status==='active'?'غیرفعال‌کردن':'فعال‌کردن';t.onclick=()=>api('teacherToggleQuestion',{questionId:q.questionId}).then(()=>loadQuestions(currentScope)).catch(x=>notice(x.message));row.append(e,t)}root.appendChild(el)})}).catch(e=>notice(e.message))}
 function uploadQuestionImage(data){return new Promise((resolve,reject)=>{
  const requestId=Array.from(crypto.getRandomValues(new Uint8Array(16))).map(x=>x.toString(16).padStart(2,'0')).join('');
  let frame=document.getElementById('imageUploadFrame');if(!frame){frame=document.createElement('iframe');frame.name='imageUploadFrame';frame.id='imageUploadFrame';frame.style.display='none';document.body.appendChild(frame)}
@@ -98,7 +105,8 @@ function renderQuestions(qs){
   box.appendChild(title);
   if(q.image){
    const image=document.createElement('img');
-   image.src=q.image;
+   image.src=getDisplayImageUrl(q.image);
+    image.referrerPolicy='no-referrer';
    image.alt=`تصویر سؤال ${i+1}`;
    image.loading='lazy';
    image.style.cssText='display:block;width:auto;max-width:100%;max-height:420px;height:auto;object-fit:contain;margin:12px auto 18px;border-radius:12px';
