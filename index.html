@@ -38,7 +38,7 @@
  </form>
 </section>
 
-<section id="listView" class="card hidden"><div class="row"><h2>آزمون‌های شما</h2><button class="btn secondary" onclick="refreshStudentExams()">بروزرسانی آزمون‌ها</button></div><div id="examList"></div></section>
+<section id="listView" class="card hidden"><div class="row"><h2>آزمون‌های شما</h2><div class="row"><button class="btn secondary" onclick="loadStudentResults()">📊 کارنامه‌های من</button><button class="btn secondary" onclick="refreshStudentExams()">بروزرسانی آزمون‌ها</button></div></div><div id="examList"></div></section>
 <section id="examView" class="card hidden"><div class="row"><div><h2 id="examTitle">آزمون</h2><div class="muted" id="examMeta"></div></div><div class="timer" id="timer">--:--</div></div><div class="status">پاسخ‌ها به‌صورت خودکار ذخیره می‌شوند. تا پایان آزمون می‌توانی گزینه‌ها را تغییر بدهی.</div><div id="questions"></div><div class="row" style="margin-top:18px"><span class="muted" id="answeredCount"></span><button class="btn danger" id="submitBtn" onclick="confirmSubmit()">ثبت نهایی آزمون</button></div></section>
 <section id="resultView" class="card hidden"><h2>نتیجه آزمون</h2><div id="resultContent"></div><button class="btn secondary" onclick="showList()">بازگشت به آزمون‌ها</button></section>
 <div class="foot">لطفاً تا ثبت نهایی آزمون، صفحه را نبند.</div></main>
@@ -147,6 +147,32 @@ function startTimer(started,duration){clearInterval(timerHandle);if(!duration){d
 function confirmSubmit(){const missing=active.questions.length-Object.keys(answerState).length;if(!confirm(`آیا آزمون را نهایی می‌کنی؟\n${missing} سؤال بدون پاسخ باقی مانده است. پس از ثبت، امکان تغییر پاسخ‌ها نیست.`))return;submitExam(false)}
 function submitExam(auto){if(!active)return;document.getElementById('submitBtn').disabled=true;notice(auto?'زمان آزمون تمام شد؛ در حال ثبت پاسخ‌ها…':'در حال ثبت نهایی پاسخ‌ها…');const wait=()=>{if(saving>0){setTimeout(wait,300);return}api('submit',{attemptId:active.attemptId}).then(showResult).catch(e=>{notice(e.message);document.getElementById('submitBtn').disabled=false})};wait()}
 function showResult(data){clearInterval(timerHandle);hideNotice();document.getElementById('examView').classList.add('hidden');document.getElementById('resultView').classList.remove('hidden');const box=document.getElementById('resultContent');if(data.status==='waiting'){box.innerHTML=`<div class="status">${esc(data.message||'نتیجه پس از تأیید دبیر نمایش داده می‌شود.')}<br><button class="btn secondary" style="margin-top:10px" onclick="checkCurrentResult()">بررسی وضعیت کارنامه</button></div>`;return}box.innerHTML=`<div class="grid"><div class="stat"><b>${data.score}%</b>درصد</div><div class="stat"><b class="good">${data.correct}</b>پاسخ درست</div><div class="stat"><b class="bad">${data.wrong}</b>پاسخ نادرست</div><div class="stat"><b>${data.unanswered}</b>بدون پاسخ</div></div><h3>بررسی پاسخ‌ها</h3>`+(data.details||[]).map((d,i)=>`<div class="exam"><b>سؤال ${i+1}</b><div>پاسخ شما: ${d.selected||'بدون پاسخ'} | پاسخ صحیح: ${d.correct||'—'}</div><div class="${d.isCorrect?'good':'bad'}">${d.isCorrect?'پاسخ درست':'پاسخ نادرست'}</div>${d.explanation?`<div class="muted">توضیح: ${esc(d.explanation)}</div>`:''}</div>`).join('')}
+
+function loadStudentResults(){
+ hideAllViews();
+ document.getElementById('resultView').classList.remove('hidden');
+ const box=document.getElementById('resultContent');
+ box.innerHTML='در حال دریافت کارنامه‌ها…';
+ api('studentMyResults').then(d=>{
+  const results=d.results||[];
+  if(!results.length){box.innerHTML='<p class="muted">هنوز آزمون ثبت‌نهایی‌شده‌ای برای نمایش وجود ندارد.</p>';return;}
+  box.innerHTML='';
+  results.forEach(r=>{
+   const el=document.createElement('div');el.className='exam';
+   const published=r.status==='published';
+   const status=published?'کارنامه منتشر شده':'در انتظار تأیید معلم';
+   el.innerHTML=`<div class="row"><div><b>${esc(r.title)}</b><div class="muted">${esc(r.subject)} | ${r.submittedAt?new Date(r.submittedAt).toLocaleString('fa-IR'):''}</div></div><span class="pill">${status}</span></div>`;
+   if(published){
+    const b=document.createElement('button');b.className='btn';b.textContent='مشاهده کارنامه';b.style.marginTop='10px';
+    b.onclick=()=>{active={attemptId:r.attemptId};notice('در حال دریافت کارنامه…');api('status',{attemptId:r.attemptId}).then(showResult).catch(e=>notice(e.message));};
+    el.appendChild(b);
+   } else {
+    const p=document.createElement('div');p.className='muted';p.textContent='پس از انتشار توسط معلم، کارنامه از همین بخش قابل مشاهده خواهد بود.';el.appendChild(p);
+   }
+   box.appendChild(el);
+  });
+ }).catch(e=>{box.textContent=e.message;});
+}
 function checkCurrentResult(){if(!active||!active.attemptId)return;notice('در حال بررسی وضعیت کارنامه…');api('status',{attemptId:active.attemptId}).then(showResult).catch(e=>notice(e.message))}
 function showList(){active=null;loadBootstrap()}
 function esc(x){return String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
