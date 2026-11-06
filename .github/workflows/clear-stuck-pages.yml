@@ -1,0 +1,23 @@
+name: Clear Stuck Pages Deployment
+
+on:
+  workflow_dispatch:
+
+permissions:
+  deployments: write
+
+jobs:
+  clear:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark stuck deployment as inactive
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: 7582584306,
+              state: "inactive",
+              description: "Clear stuck GitHub Pages deployment"
+            });
