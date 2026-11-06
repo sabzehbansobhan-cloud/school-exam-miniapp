@@ -5,7 +5,7 @@
 <title>سامانه آزمون مدرسه</title>
 <style>
 :root{--bg:#f3f6fb;--card:#fff;--ink:#172033;--muted:#6b7280;--blue:#3157d5;--line:#e5eaf2;--green:#138a54;--red:#c43c45}*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Tahoma,Arial,sans-serif;color:var(--ink);line-height:1.8}.wrap{max-width:900px;margin:auto;padding:18px}.top{background:linear-gradient(135deg,#243c9d,#5275e7);color:white;border-radius:20px;padding:22px;margin-bottom:16px;box-shadow:0 8px 25px #243c9d22}.top h1{font-size:22px;margin:0 0 5px}.muted{color:var(--muted);font-size:13px}.top .muted{color:#e3e9ff}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 4px 18px #17203308}.row{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.btn{border:0;border-radius:12px;background:var(--blue);color:white;padding:11px 17px;font:inherit;font-weight:bold;cursor:pointer}.btn:disabled{opacity:.5;cursor:not-allowed}.btn.secondary{background:#e9edfb;color:#2946a5}.btn.danger{background:#b83240}.pill{display:inline-block;background:#eef2ff;color:#2946a5;padding:4px 10px;border-radius:30px;font-size:12px}.exam{border:1px solid var(--line);border-radius:14px;padding:15px;margin:12px 0}.exam h3{margin:0 0 5px}.qbox{padding:17px 0;border-bottom:1px solid var(--line)}.qbox:last-child{border:0}.qtitle{font-weight:bold;margin:0 0 12px}.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:12px;margin:8px 0;cursor:pointer}.opt:has(input:checked){border-color:var(--blue);background:#f1f4ff}.opt input{margin-top:7px;accent-color:var(--blue)}.timer{font-weight:bold;font-size:19px;color:#fff;background:#162b79;padding:6px 14px;border-radius:12px}.status{padding:12px;border-radius:12px;background:#f0f4ff;margin:10px 0}.hidden{display:none!important}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.stat{background:#f7f8fc;border-radius:12px;padding:12px;text-align:center}.stat b{display:block;font-size:23px}.good{color:var(--green)}.bad{color:var(--red)}.foot{font-size:12px;color:var(--muted);text-align:center;padding:20px}
-</style><script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</style>
 </head>
 <body><main class="wrap">
 <header class="top"><div class="row"><div><h1>سامانه آزمون مدرسه</h1><div class="muted" id="welcome">در حال اتصال به حساب کاربری…</div></div><span class="pill" style="background:#ffffff22;color:white">آزمون آنلاین</span></div></header>
@@ -27,15 +27,15 @@
 <section id="teacherStudentPerformanceView" class="card hidden"><div class="row"><h2 id="teacherStudentPerformanceTitle">عملکرد دانش‌آموز</h2><button class="btn secondary" onclick="backToClassStudents()">بازگشت به فهرست کلاس</button></div><div id="teacherStudentStats" class="grid"></div><div id="teacherStudentHistory"></div></section>
 <section id="smartImportView" class="card hidden">
  <div class="row"><h2>✨ ورود هوشمند سؤال‌ها</h2><button class="btn secondary" onclick="backToBank()">بازگشت</button></div>
- <div class="status">فایل PDF یا تصویر سؤال‌ها را بارگذاری کن. هوش مصنوعی متن و گزینه‌ها را استخراج می‌کند؛ پاسخ صحیح فقط در صورت وجود پاسخ‌نامه و اطمینان کافی ثبت می‌شود. تمام سؤال‌ها قبل از ورود به بانک قابل ویرایش هستند.</div>
+ <div class="status">تصویر سؤال‌ها را بارگذاری کن. هوش مصنوعی متن و گزینه‌ها را استخراج می‌کند؛ پاسخ صحیح فقط در صورت وجود پاسخ‌نامه و اطمینان کافی ثبت می‌شود. تمام سؤال‌ها قبل از ورود به بانک قابل ویرایش هستند.</div>
  <div class="grid">
   <label>پایه<select id="smartGrade"><option value="10">دهم</option><option value="11" selected>یازدهم</option><option value="12">دوازدهم</option></select></label>
   <label>رشته<select id="smartTrack"><option>تجربی</option><option>ریاضی</option></select></label>
   <label>درس<input id="smartSubject" placeholder="مثلاً زیست‌شناسی" required></label>
   <label>محل ذخیره سؤال‌ها<select id="smartVisibility"><option value="personal">بانک شخصی من</option><option value="shared">بانک مشترک مدرسه</option></select></label>
  </div>
- <label>فایل سؤال‌ها (PDF یا تصویر)<input id="smartFile" type="file" accept="application/pdf,image/png,image/jpeg,image/webp"></label>
- <div class="muted">فایل PDF حداکثر ۶ مگابایت و ۱۰ صفحه باشد. هر صفحه جداگانه به تصویر تبدیل و با Groq تحلیل می‌شود؛ تصاویر همان صفحه نیز برای سؤال مربوط برش می‌خورند. اگر پاسخ‌نامه جداست، صفحات آن را در همان PDF قرار بده.</div>
+ <label>تصویر سؤال‌ها (PNG، JPG یا WEBP)<input id="smartFile" type="file" accept="image/png,image/jpeg,image/webp"></label>
+ <div class="muted">فقط تصویر بارگذاری کن؛ حجم فایل حداکثر ۶ مگابایت باشد. تصاویر و نمودارهای داخل عکس، در صورت تشخیص، برای سؤال مربوط برش می‌خورند.</div>
  <label>توضیح اختیاری برای هوش مصنوعی<textarea id="smartHint" rows="2" placeholder="مثلاً پاسخ‌نامه در دو صفحه آخر فایل است."></textarea></label>
  <button class="btn" id="smartImportButton" onclick="startSmartImport()">استخراج سؤال‌ها</button>
  <div id="smartImportStatus" class="status hidden"></div>
@@ -122,40 +122,16 @@ async function startSmartImport(){
  const file=document.getElementById('smartFile').files[0],subject=document.getElementById('smartSubject').value.trim(),button=document.getElementById('smartImportButton'),status=document.getElementById('smartImportStatus');
  if(!file){notice('ابتدا فایل سؤال‌ها را انتخاب کن.');return}if(!subject){notice('نام درس را وارد کن.');return}
  if(file.size>6*1024*1024){notice('حجم فایل حداکثر ۶ مگابایت باشد.');return}
- if(!(/^application\/pdf$/.test(file.type)||/^image\/(png|jpeg|webp)$/.test(file.type))){notice('فرمت فایل باید PDF، PNG، JPG یا WEBP باشد.');return}
+ if(!/^image\/(png|jpeg|webp)$/.test(file.type)){notice('فعلاً فقط تصویر PNG، JPG یا WEBP پشتیبانی می‌شود؛ ورود PDF در فاز بعدی فعال خواهد شد.');return}
  button.disabled=true;status.classList.remove('hidden');document.getElementById('smartPreview').classList.add('hidden');smartExtractedQuestions=[];
  try{
-  if(file.type==='application/pdf'){
-   if(!window.pdfjsLib)throw new Error('کتابخانه خواندن PDF بارگذاری نشد. اینترنت مرورگر را بررسی و صفحه را تازه‌سازی کن.');
-   status.textContent='در حال خواندن فایل PDF…';
-   const bytes=await file.arrayBuffer();
-   pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-   const pdf=await pdfjsLib.getDocument({data:bytes}).promise;
-   if(pdf.numPages>10)throw new Error('این نسخه در هر بار حداکثر ۱۰ صفحه PDF را پردازش می‌کند. فایل را به بخش‌های کوچک‌تر تقسیم کن.');
-   const all=[];
-   for(let pageNo=1;pageNo<=pdf.numPages;pageNo++){
-    status.textContent=`در حال تبدیل و تحلیل صفحه ${pageNo} از ${pdf.numPages} با Groq…`;
-    const page=await pdf.getPage(pageNo),base=page.getViewport({scale:1});
-    const scale=Math.min(1.8,1500/Math.max(base.width,base.height));
-    const viewport=page.getViewport({scale});const canvas=document.createElement('canvas');canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);
-    await page.render({canvasContext:canvas.getContext('2d'),viewport}).promise;
-    const pageData=canvas.toDataURL('image/jpeg',0.84);canvas.width=1;canvas.height=1;
-    if(pageData.length>4300000)throw new Error(`حجم تصویر صفحه ${pageNo} زیاد شد؛ PDF را با کیفیت پایین‌تری ذخیره کن.`);
-    const result=await postSmartImport(pageData,`${file.name} - صفحه ${pageNo}`,'image/jpeg');
-    const qs=result.questions||[];
-    qs.forEach(q=>{q._sourcePage=pageNo;q._visualDataUrls=[];});
-    if(qs.length){await prepareSmartVisualCrops(pageData,qs);all.push(...qs)}
-   }
-   smartExtractedQuestions=all;
-  }else{
-   status.textContent='در حال بارگذاری و تحلیل تصویر با Groq…';
-   const data=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(new Error('خواندن فایل ناموفق بود.'));r.readAsDataURL(file)});
-   const result=await postSmartImport(data,file.name,file.type);smartExtractedQuestions=result.questions||[];
-   if(smartExtractedQuestions.length)await prepareSmartVisualCrops(data,smartExtractedQuestions);
-  }
+  status.textContent='در حال بارگذاری و تحلیل تصویر با Groq…';
+  const data=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(new Error('خواندن فایل ناموفق بود.'));r.readAsDataURL(file)});
+  const result=await postSmartImport(data,file.name,file.type);smartExtractedQuestions=result.questions||[];
+  if(smartExtractedQuestions.length)await prepareSmartVisualCrops(data,smartExtractedQuestions);
   if(!smartExtractedQuestions.length)throw new Error('سؤال تستی قابل تشخیصی از فایل استخراج نشد.');
   renderSmartPreview({questions:smartExtractedQuestions});
-  status.textContent=`${smartExtractedQuestions.length} سؤال استخراج شد. شکل‌ها و نمودارهای هر صفحه نیز در صورت تشخیص برش خورده‌اند؛ قبل از ذخیره همه موارد را بررسی کن.`;
+  status.textContent=`${smartExtractedQuestions.length} سؤال استخراج شد. شکل‌ها و نمودارهای تصویر نیز در صورت تشخیص برش خورده‌اند؛ قبل از ذخیره همه موارد را بررسی کن.`;
   document.getElementById('smartPreview').classList.remove('hidden');
  }catch(e){status.textContent=e.message||'خطای نامشخص در پردازش فایل';notice(status.textContent)}finally{button.disabled=false}
 }
