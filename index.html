@@ -145,32 +145,39 @@ function postSmartVisualEdit(dataUrl,label){return new Promise((resolve,reject)=
   document.body.appendChild(form);form.submit();setTimeout(()=>{if(form.isConnected)form.remove()},120000);
   let tries=0;const timer=setInterval(()=>{tries++;api('teacherSmartVisualEditStatus',{requestId}).then(d=>{if(d.pending)return;clearInterval(timer);resolve(d.dataUrl)}).catch(err=>{clearInterval(timer);reject(err)});if(tries>=150){clearInterval(timer);reject(new Error('پردازش تصویر بیش از حد طول کشید.'))}},2000);
 })}
+function describeVisualPosition(region,imgWidth,imgHeight){
+ const cx=(Number(region.x)+Number(region.width)/2)/1000,cy=(Number(region.y)+Number(region.height)/2)/1000;
+ const vertical=cy<0.34?'بالای صفحه':(cy>0.66?'پایین صفحه':'وسط صفحه');
+ const horizontal=cx<0.34?'سمت چپ':(cx>0.66?'سمت راست':'نزدیک مرکز');
+ return vertical+' '+horizontal;
+}
 async function prepareSmartVisualCrops(dataUrl,questions=smartExtractedQuestions){
- const img=await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=()=>reject(new Error('تصویر اصلی برای برش قابل خواندن نیست.'));im.src=dataUrl});
+ const img=await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=()=>reject(new Error('تصویر اصلی برای پردازش قابل خواندن نیست.'));im.src=dataUrl});
  const assigned=[];let editCount=0;
  const overlapRatio=(a,b)=>{const x1=Math.max(a.x,b.x),y1=Math.max(a.y,b.y),x2=Math.min(a.x+a.w,b.x+b.w),y2=Math.min(a.y+a.h,b.y+b.h);const inter=Math.max(0,x2-x1)*Math.max(0,y2-y1);return inter/Math.max(1,Math.min(a.w*a.h,b.w*b.h))};
  for(let qi=0;qi<questions.length;qi++){
   const q=questions[qi];q._visualDataUrls=[];q._visualWarnings=[];
   const regions=Array.isArray(q.visual_regions)?q.visual_regions:[];
   for(const r of regions){
-   let nx=Number(r.x),ny=Number(r.y),nw=Number(r.width),nh=Number(r.height);
+   const nx=Number(r.x),ny=Number(r.y),nw=Number(r.width),nh=Number(r.height);
    if(![nx,ny,nw,nh].every(Number.isFinite)||nw<15||nh<15||nx<0||ny<0||nx+nw>1010||ny+nh>1010)continue;
-   let x=nx*img.naturalWidth/1000,y=ny*img.naturalHeight/1000,w=nw*img.naturalWidth/1000,h=nh*img.naturalHeight/1000;
-   const px=Math.max(14,w*0.14),py=Math.max(14,h*0.14);x=Math.max(0,Math.floor(x-px));y=Math.max(0,Math.floor(y-py));let right=Math.min(img.naturalWidth,Math.ceil(nx*img.naturalWidth/1000+w+px)),bottom=Math.min(img.naturalHeight,Math.ceil(ny*img.naturalHeight/1000+h+py));w=right-x;h=bottom-y;if(w<24||h<24)continue;
-   const box={x,y,w,h};const duplicate=assigned.some(a=>a.questionIndex!==qi&&overlapRatio(a.box,box)>0.72);
-   if(duplicate){q._visualWarnings.push('محدوده‌ای مشابه برای سؤال دیگری تشخیص داده شد؛ برای جلوگیری از اتصال تصویر اشتباه، این مورد متصل نشد. فایل اصلی را بررسی کن.');continue;}
-   const canvas=document.createElement('canvas');const scale=Math.min(1,1800/Math.max(w,h));canvas.width=Math.max(1,Math.round(w*scale));canvas.height=Math.max(1,Math.round(h*scale));const ctx=canvas.getContext('2d');ctx.drawImage(img,x,y,w,h,0,0,canvas.width,canvas.height);
-   const originalCrop=canvas.toDataURL('image/jpeg',0.92);let finalCrop=originalCrop;
-   if(editCount<8){
-    try{
-     const status=document.getElementById('smartImportStatus');if(status)status.textContent='در حال پردازش شکل سؤال '+(qi+1)+' با مدل ویرایش تصویر…';
-     finalCrop=await postSmartVisualEdit(originalCrop,'شکل مربوط به سؤال '+(qi+1));
-    }catch(editError){q._visualWarnings.push('پردازش هوشمند شکل انجام نشد؛ برش اصلی نگه داشته شد. '+(editError.message||''));}
-    editCount++;
-   }else{q._visualWarnings.push('برای کنترل هزینه، پردازش هوشمند بیش از ۸ شکل در هر تصویر انجام نشد؛ برش اصلی نگه داشته شد.');}
-   q._visualDataUrls.push(finalCrop);assigned.push({questionIndex:qi,box});
+   const box={x:nx,y:ny,w:nw,h:nh};
+   const duplicate=assigned.some(a=>a.questionIndex!==qi&&overlapRatio(a.box,box)>0.72);
+   if(duplicate){q._visualWarnings.push('محدوده‌ای مشابه برای سؤال دیگری تشخیص داده شد؛ برای جلوگیری از اتصال تصویر اشتباه، این مورد متصل نشد.');continue;}
+   if(editCount>=8){q._visualWarnings.push('برای کنترل هزینه، پردازش هوشمند بیش از ۸ شکل در هر تصویر انجام نشد.');continue;}
+   const position=q.visual_location||describeVisualPosition(r,img.naturalWidth,img.naturalHeight);
+   const questionHint=String(q.text||'').replace(/\s+/g,' ').slice(0,180);
+   const label='شکل/نمودار سؤال '+(qi+1)+'؛ موقعیت تقریبی در صفحه: '+position+'؛ موضوع سؤال برای تشخیص شکل درست: '+questionHint;
+   try{
+    const status=document.getElementById('smartImportStatus');if(status)status.textContent='در حال جداکردن خود شکل سؤال '+(qi+1)+' از صفحه اصلی…';
+    // Important: send the ORIGINAL full page, not a browser crop. This is the same workflow as the successful standalone image-edit test.
+    const isolated=await postSmartVisualEdit(dataUrl,label);
+    if(!isolated||!/^data:image\/(png|jpeg|webp);base64,/.test(isolated))throw new Error('خروجی تصویر معتبر نبود.');
+    q._visualDataUrls.push(isolated);assigned.push({questionIndex:qi,box});
+   }catch(editError){q._visualWarnings.push('استخراج مستقل شکل انجام نشد؛ برای جلوگیری از افزودن متن سؤال به‌عنوان تصویر، برش ناقص ذخیره نشد. '+(editError.message||''));}
+   editCount++;
   }
-  if(q.has_visual&&!regions.length)q._visualWarnings.push('مدل وجود شکل یا نمودار را تشخیص داد، اما مختصات مطمئنی برای برش پیدا نکرد؛ تصویر به‌صورت خودکار متصل نشد.');
+  if(q.has_visual&&!regions.length)q._visualWarnings.push('وجود شکل تشخیص داده شد، اما موقعیت آن به اندازه کافی مشخص نبود؛ تصویر اشتباه به سؤال متصل نشد.');
  }
 }
 
