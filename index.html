@@ -28,7 +28,7 @@
 <section id="teacherStudentPerformanceView" class="card hidden"><div class="row"><h2 id="teacherStudentPerformanceTitle">عملکرد دانش‌آموز</h2><button class="btn secondary" onclick="backToClassStudents()">بازگشت به فهرست کلاس</button></div><div id="teacherStudentStats" class="grid"></div><section class="exam"><h3>📈 نمودار پیشرفت دانش‌آموز</h3><div class="muted">مقایسه نمره دانش‌آموز با میانگین کلاس در آزمون‌های ثبت‌نهایی</div><div id="teacherStudentProgressChart" style="width:100%;overflow-x:auto;margin-top:12px"></div><div id="teacherStudentProgressLegend" class="muted"></div></section><div id="teacherStudentHistory"></div></section>
 <section id="smartImportView" class="card hidden">
  <div class="row"><h2>📄 ورود خودکار سؤال از PDF و تصویر</h2><button class="btn secondary" onclick="backToBank()">بازگشت</button></div>
- <div class="status">فایل PDF یا تصویر برگه سؤال را انتخاب کن. سیستم با OCR فارسی محل شروع سؤال‌ها را پیدا می‌کند و هر سؤال را همراه شکل، جدول و گزینه‌ها به‌صورت یک تصویر مستقل برش می‌زند. پاسخ صحیح را خود دبیر تعیین می‌کند؛ هیچ پاسخی توسط سیستم حدس زده نمی‌شود.</div>
+ <div class="status">فایل PDF یا تصویر برگه سؤال را انتخاب کن. سیستم ابتدا متن واقعی و مختصات PDF را می‌خواند و در صورت نبود متن از OCR فارسی استفاده می‌کند و هر سؤال را همراه شکل، جدول و گزینه‌ها به‌صورت یک تصویر مستقل برش می‌زند. پاسخ صحیح را خود دبیر تعیین می‌کند؛ هیچ پاسخی توسط سیستم حدس زده نمی‌شود.</div>
  <div class="grid">
   <label>پایه<select id="smartGrade"><option value="10">دهم</option><option value="11" selected>یازدهم</option><option value="12">دوازدهم</option></select></label>
   <label>رشته<select id="smartTrack"><option>تجربی</option><option>ریاضی</option></select></label>
@@ -119,36 +119,54 @@ let smartExtractedQuestions=[];
 let smartOcrWorker=null;
 function openSmartImport(){hideAllViews();document.getElementById('smartImportView').classList.remove('hidden');document.getElementById('smartPreview').classList.add('hidden');document.getElementById('smartImportStatus').classList.add('hidden');document.getElementById('smartFile').value='';smartExtractedQuestions=[];}
 function smartStatus(t){const el=document.getElementById('smartImportStatus');el.classList.remove('hidden');el.textContent=t;}
-function toAsciiDigits(s){return String(s||'').replace(/[۰-۹٠-٩]/g,c=>'۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩'.indexOf(c)>=10?String('0123456789'[('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩'.indexOf(c)-10)]):String('0123456789'['۰۱۲۳۴۵۶۷۸۹'.indexOf(c)]));}
+function toAsciiDigits(s){return String(s||'').replace(/[۰-۹٠-٩]/g,c=>{const a='۰۱۲۳۴۵۶۷۸۹',b='٠١٢٣٤٥٦٧٨٩';return String(a.indexOf(c)>=0?a.indexOf(c):b.indexOf(c));});}
+function normalizeQuestionText(s){return String(s||'').replace(/[۰-۹٠-٩]/g,toAsciiDigits).replace(/[يى]/g,'ی').replace(/ك/g,'ک').replace(/[\u200c\u200f\u202a-\u202e]/g,' ').replace(/\s+/g,' ').trim();}
+function parseQuestionNumber(text){
+ const t=normalizeQuestionText(text);
+ const patterns=[
+  /^\s*(?:سؤال|سوال|پرسش)\s*[:：#-]?\s*(\d{1,3})\b/i,
+  /^\s*[\[\(]?\s*(\d{1,3})\s*[\]\)]?\s*[\.٫،:：)\-ـ]\s*/,
+  /^\s*(\d{1,3})\s+(?=[\u0600-\u06FF])/,
+  /^\s*(?:question|q)\s*#?\s*(\d{1,3})\b/i
+ ];
+ for(const re of patterns){const m=t.match(re);if(m){const n=Number(m[1]);if(n>=1&&n<=150)return n;}}
+ return null;
+}
 function detectQuestionStarts(ocr){
  const lines=(ocr&&ocr.data&&ocr.data.lines)||[],out=[];
- for(const line of lines){
-  const t=String(line.text||'').trim();
-  // Only accept a number at the beginning of an OCR line, followed by common question delimiters.
-  const m=t.match(/^\s*([0-9۰-۹٠-٩]{1,2})\s*[\.\٫،\)\]\-:：]/);
-  if(!m)continue;
-  const n=Number(toAsciiDigits(m[1]));if(!Number.isFinite(n)||n<1||n>100)continue;
-  const b=line.bbox||{};if(!Number.isFinite(b.y0)||!Number.isFinite(b.y1))continue;
-  if(out.length && b.y0-out[out.length-1].y0<48)continue;
-  out.push({number:n,y0:b.y0,y1:b.y1,text:t});
- }
- // Remove duplicate OCR lines and sort by vertical position.
+ for(const line of lines){const t=String(line.text||'').trim(),n=parseQuestionNumber(t),b=line.bbox||{};if(n===null||!Number.isFinite(b.y0)||!Number.isFinite(b.y1))continue;out.push({number:n,y0:b.y0,y1:b.y1,text:t,confidence:Number(line.confidence||0)});}
  out.sort((a,b)=>a.y0-b.y0);
- return out.filter((x,i,a)=>!i||Math.abs(x.y0-a[i-1].y0)>12);
+ const clean=[];for(const x of out){const prev=clean[clean.length-1];if(prev&&Math.abs(x.y0-prev.y0)<18){if(x.confidence>prev.confidence)clean[clean.length-1]=x;continue;}clean.push(x);}return clean;
+}
+// Read selectable PDF text with its real page coordinates. This avoids OCR number errors on native PDFs.
+async function getPdfTextAnchors(pdf,pageIndex,page,viewport){
+ const tc=await page.getTextContent(),groups=[];
+ for(const item of (tc.items||[])){
+  if(!item.str||!item.str.trim()||!item.transform)continue;
+  const pt=viewport.convertToViewportPoint(item.transform[4],item.transform[5]);
+  const y=pt[1],x=pt[0];let g=groups.find(z=>Math.abs(z.y-y)<Math.max(4,(item.height||10)*.45));
+  if(!g){g={y,x,text:'',items:[]};groups.push(g);}g.items.push({x,text:item.str});g.x=Math.min(g.x,x);
+ }
+ groups.sort((a,b)=>a.y-b.y);
+ const out=[];
+ for(const g of groups){g.items.sort((a,b)=>a.x-b.x);const text=g.items.map(z=>z.text).join(' ').replace(/\s+/g,' ').trim();const n=parseQuestionNumber(text);if(n!==null)out.push({page:pageIndex,y:g.y,number:n,text,source:'pdf-text',confidence:100});}
+ return out;
 }
 async function getPdfPageCanvases(file){
  if(!window.pdfjsLib)throw new Error('کتابخانه PDF بارگذاری نشد؛ اتصال اینترنت را بررسی و صفحه را تازه‌سازی کن.');
  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
  const bytes=await file.arrayBuffer(),pdf=await pdfjsLib.getDocument({data:bytes}).promise;
  if(pdf.numPages>35)throw new Error('برای جلوگیری از کندی، فعلاً حداکثر ۳۵ صفحه در هر بار پشتیبانی می‌شود.');
- const pages=[];
+ const pages=[],textAnchors=[];
  for(let i=1;i<=pdf.numPages;i++){
-  smartStatus(`در حال آماده‌سازی صفحه ${i} از ${pdf.numPages}…`);
+  smartStatus(`در حال خواندن ساختار صفحه ${i} از ${pdf.numPages}…`);
   const page=await pdf.getPage(i),viewport=page.getViewport({scale:1.65});
   const canvas=document.createElement('canvas');canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);
   await page.render({canvasContext:canvas.getContext('2d'),viewport}).promise;
   pages.push(canvas);
+  const a=await getPdfTextAnchors(pdf,i-1,page,viewport);textAnchors.push(...a);
  }
+ pages._pdfTextAnchors=textAnchors;
  return pages;
 }
 async function getImageCanvas(file){
@@ -184,18 +202,21 @@ async function startSmartImport(){
   if(!window.Tesseract)throw new Error('موتور OCR بارگذاری نشد؛ اتصال اینترنت را بررسی کن.');
   smartStatus('در حال بارگذاری موتور تشخیص متن فارسی (بار اول ممکن است کمی طول بکشد)…');
   if(!smartOcrWorker)smartOcrWorker=await Tesseract.createWorker('fas+eng',1,{logger:m=>{if(m.status==='recognizing text')smartStatus(`در حال خواندن متن صفحه… ${Math.round((m.progress||0)*100)}٪`);}});
-  const anchors=[];
-  for(let i=0;i<pages.length;i++){
-   smartStatus(`در حال تشخیص شماره سؤال‌ها در صفحه ${i+1} از ${pages.length}…`);
-   const result=await smartOcrWorker.recognize(pages[i]);
-   const found=detectQuestionStarts(result);
-   found.forEach(a=>anchors.push({page:i,y:a.y0,text:a.text,number:a.number}));
+  let anchors=(isPdf&&pages._pdfTextAnchors&&pages._pdfTextAnchors.length>=2)?pages._pdfTextAnchors.slice():[];
+  let detectionMode=anchors.length?'متن واقعی PDF و مختصات صفحه':'OCR فارسی/انگلیسی';
+  if(anchors.length<2){
+   anchors=[];
+   for(let i=0;i<pages.length;i++){
+    smartStatus(`در حال تشخیص شماره سؤال‌ها در صفحه ${i+1} از ${pages.length} با OCR…`);
+    const result=await smartOcrWorker.recognize(pages[i]);
+    const found=detectQuestionStarts(result);
+    found.forEach(a=>anchors.push({page:i,y:a.y0,text:a.text,number:a.number,source:'ocr',confidence:a.confidence}));
+   }
   }
-  if(!anchors.length)throw new Error('شماره شروع سؤال‌ها با اطمینان کافی پیدا نشد. فایل باید شماره‌گذاری واضح داشته باشد؛ فعلاً چیزی ذخیره نشده است.');
+  if(!anchors.length)throw new Error('شماره شروع سؤال‌ها پیدا نشد. ممکن است شماره‌گذاری در تصویر/ستون باشد یا PDF اسکن بی‌کیفیت باشد؛ فعلاً چیزی ذخیره نشده است.');
   anchors.sort((a,b)=>a.page-b.page||a.y-b.y);
-  // Ignore duplicate detections on the same line. Preserve document order even if OCR misreads numbering.
-  const clean=anchors.filter((a,i)=>!i||a.page!==anchors[i-1].page||Math.abs(a.y-anchors[i-1].y)>18);
-  const scale=pages[0].height/(pages[0].height||1);
+  const clean=[];for(const a of anchors){const prev=clean[clean.length-1];if(prev&&prev.page===a.page&&Math.abs(prev.y-a.y)<18){if((a.confidence||0)>(prev.confidence||0))clean[clean.length-1]=a;continue;}clean.push(a);}
+  if(clean.length===1)throw new Error('فقط یک شروع سؤال تشخیص داده شد؛ برای جلوگیری از برش اشتباه، پیش‌نمایش ساخته نشد.');
   for(let i=0;i<clean.length;i++){
    const a=clean[i],next=clean[i+1]||{page:pages.length-1,y:pages[pages.length-1].height-24};
    const pad=Math.max(8,Math.round(pages[a.page].height*0.008));
@@ -206,7 +227,7 @@ async function startSmartImport(){
   }
   if(!smartExtractedQuestions.length)throw new Error('برش معتبری تولید نشد. شماره‌گذاری یا کیفیت فایل را بررسی کن.');
   renderSmartPreview({questions:smartExtractedQuestions});
-  smartStatus(`${smartExtractedQuestions.length} برش ساخته شد. ترتیب بر اساس جایگاه در فایل است؛ شماره‌های OCR فقط راهنما هستند. همه تصاویر را بررسی و پاسخ صحیح را تعیین کن.`);
+  smartStatus(`${smartExtractedQuestions.length} برش ساخته شد. روش تشخیص: ${detectionMode}. دقت مرزبندی هنوز نیازمند بازبینی دبیر است؛ قبل از ذخیره تمام تصاویر را کنترل کن.`);
   document.getElementById('smartPreview').classList.remove('hidden');
  }catch(e){smartStatus(e.message||'خطای نامشخص در پردازش فایل');notice(e.message||'خطای پردازش فایل');}
  finally{button.disabled=false;}
