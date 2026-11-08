@@ -6,7 +6,7 @@
 <style>
 :root{--bg:#f3f6fb;--card:#fff;--ink:#172033;--muted:#6b7280;--blue:#3157d5;--line:#e5eaf2;--green:#138a54;--red:#c43c45}*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Tahoma,Arial,sans-serif;color:var(--ink);line-height:1.8}.wrap{max-width:900px;margin:auto;padding:18px}.top{background:linear-gradient(135deg,#243c9d,#5275e7);color:white;border-radius:20px;padding:22px;margin-bottom:16px;box-shadow:0 8px 25px #243c9d22}.top h1{font-size:22px;margin:0 0 5px}.muted{color:var(--muted);font-size:13px}.top .muted{color:#e3e9ff}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 4px 18px #17203308}.row{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.btn{border:0;border-radius:12px;background:var(--blue);color:white;padding:11px 17px;font:inherit;font-weight:bold;cursor:pointer}.btn:disabled{opacity:.5;cursor:not-allowed}.btn.secondary{background:#e9edfb;color:#2946a5}.btn.danger{background:#b83240}.pill{display:inline-block;background:#eef2ff;color:#2946a5;padding:4px 10px;border-radius:30px;font-size:12px}.exam{border:1px solid var(--line);border-radius:14px;padding:15px;margin:12px 0}.exam h3{margin:0 0 5px}.qbox{padding:17px 0;border-bottom:1px solid var(--line)}.qbox:last-child{border:0}.qtitle{font-weight:bold;margin:0 0 12px}.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:12px;margin:8px 0;cursor:pointer}.opt:has(input:checked){border-color:var(--blue);background:#f1f4ff}.opt input{margin-top:7px;accent-color:var(--blue)}.timer{font-weight:bold;font-size:19px;color:#fff;background:#162b79;padding:6px 14px;border-radius:12px}.status{padding:12px;border-radius:12px;background:#f0f4ff;margin:10px 0}.hidden{display:none!important}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.stat{background:#f7f8fc;border-radius:12px;padding:12px;text-align:center}.stat b{display:block;font-size:23px}.good{color:var(--green)}.bad{color:var(--red)}.foot{font-size:12px;color:var(--muted);text-align:center;padding:20px}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script><script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>\n</head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>\n</head>
 <body><main class="wrap">
 <header class="top"><div class="row"><div><h1>سامانه آزمون مدرسه</h1><div class="muted" id="welcome">در حال اتصال به حساب کاربری…</div></div><span class="pill" style="background:#ffffff22;color:white">آزمون آنلاین</span></div></header>
 <div id="notice" class="status">در حال دریافت اطلاعات…</div>
@@ -28,7 +28,7 @@
 <section id="teacherStudentPerformanceView" class="card hidden"><div class="row"><h2 id="teacherStudentPerformanceTitle">عملکرد دانش‌آموز</h2><button class="btn secondary" onclick="backToClassStudents()">بازگشت به فهرست کلاس</button></div><div id="teacherStudentStats" class="grid"></div><section class="exam"><h3>📈 نمودار پیشرفت دانش‌آموز</h3><div class="muted">مقایسه نمره دانش‌آموز با میانگین کلاس در آزمون‌های ثبت‌نهایی</div><div id="teacherStudentProgressChart" style="width:100%;overflow-x:auto;margin-top:12px"></div><div id="teacherStudentProgressLegend" class="muted"></div></section><div id="teacherStudentHistory"></div></section>
 <section id="smartImportView" class="card hidden">
  <div class="row"><h2>📄 ورود خودکار سؤال از PDF و تصویر</h2><button class="btn secondary" onclick="backToBank()">بازگشت</button></div>
- <div class="status">فایل PDF یا تصویر برگه سؤال را انتخاب کن. سیستم با OCR فارسی، مختصات متن و تشخیص ستون‌ها محدوده سؤال‌ها را پیدا می‌کند و هر سؤال را جداگانه برش می‌زند. پاسخ صحیح را خود دبیر تعیین می‌کند. پاسخ صحیح را خود دبیر تعیین می‌کند؛ هیچ پاسخی توسط سیستم حدس زده نمی‌شود.</div>
+ <div class="status">فایل PDF یا تصویر برگه سؤال را انتخاب کن. Groq Vision محدوده کامل هر سؤال، گزینه‌ها و شکل‌های مربوط را تشخیص می‌دهد و مرورگر آن را برش می‌زند. پاسخ صحیح را فقط خود دبیر تعیین می‌کند.</div>
  <div class="grid">
   <label>پایه<select id="smartGrade"><option value="10">دهم</option><option value="11" selected>یازدهم</option><option value="12">دوازدهم</option></select></label>
   <label>رشته<select id="smartTrack"><option>تجربی</option><option>ریاضی</option></select></label>
@@ -36,7 +36,7 @@
   <label>محل ذخیره سؤال‌ها<select id="smartVisibility"><option value="personal">بانک شخصی من</option><option value="shared">بانک مشترک مدرسه</option></select></label>
  </div>
  <label>فایل سؤال‌ها (PDF، PNG، JPG یا WEBP)<input id="smartFile" type="file" accept="application/pdf,image/png,image/jpeg,image/webp"></label>
- <div class="muted">پردازش در مرورگر انجام می‌شود و به API پولی هوش مصنوعی نیاز ندارد. برای نتیجه بهتر، فایل واضح و ترجیحاً تک‌ستونه باشد. فایل‌های خیلی حجیم یا اسکن‌های کم‌کیفیت ممکن است نیاز به بازبینی داشته باشند.</div>
+ <div class="muted">تصویر هر صفحه برای تشخیص مختصات به Groq ارسال می‌شود و از سهمیه/اعتبار API متصل به کلید Groq استفاده می‌کند. کلید در مرورگر نمایش داده نمی‌شود. برش نهایی در مرورگر انجام می‌شود؛ تمام برش‌ها را پیش از ذخیره بررسی کن.</div>
  <button class="btn" id="smartImportButton" onclick="startSmartImport()">تشخیص و برش سؤال‌ها</button>
  <div id="smartImportStatus" class="status hidden"></div>
  <div id="smartPreview" class="hidden"><h3>بازبینی برش‌ها و تعیین پاسخ صحیح</h3><div class="muted">تصویر هر سؤال را بررسی کن و پاسخ صحیح را خودت انتخاب کن. سؤال بدون پاسخ صحیح ذخیره نخواهد شد.</div><div id="smartQuestionCards"></div><div class="row"><span id="smartCount" class="pill"></span><button class="btn" id="smartSaveButton" onclick="saveSmartQuestions()">ذخیره سؤال‌های تصویری در بانک</button></div></div>
@@ -116,7 +116,7 @@ async function saveQuestion(ev){ev.preventDefault();const f=ev.target,b=f.queryS
 
 
 let smartExtractedQuestions=[];
-let smartOcrWorker=null;
+
 function openSmartImport(){hideAllViews();document.getElementById('smartImportView').classList.remove('hidden');document.getElementById('smartPreview').classList.add('hidden');document.getElementById('smartImportStatus').classList.add('hidden');document.getElementById('smartFile').value='';smartExtractedQuestions=[];}
 function smartStatus(t){const el=document.getElementById('smartImportStatus');el.classList.remove('hidden');el.textContent=t;}
 function toAsciiDigits(s){return String(s||'').replace(/[۰-۹٠-٩]/g,c=>{const a='۰۱۲۳۴۵۶۷۸۹',b='٠١٢٣٤٥٦٧٨٩';return String(a.indexOf(c)>=0?a.indexOf(c):b.indexOf(c));});}
@@ -244,6 +244,23 @@ function composeQuestionCrop(page,segment){
  out.getContext('2d').drawImage(page,x,y,w,h,0,0,w,h);
  return out.toDataURL('image/jpeg',0.95);
 }
+function canvasToBoundaryDataUrl(canvas){
+ const maxW=1550,scale=Math.min(1,maxW/canvas.width),w=Math.round(canvas.width*scale),h=Math.round(canvas.height*scale);
+ const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(canvas,0,0,w,h);
+ let q=0.84,out=c.toDataURL('image/jpeg',q);
+ while(out.length>6500000&&q>0.58){q-=0.06;out=c.toDataURL('image/jpeg',q);}
+ if(out.length>8500000)throw new Error('حجم تصویر صفحه برای ارسال به Groq زیاد است؛ فایل را کم‌حجم‌تر کن.');
+ return out;
+}
+function postPdfBoundaryPage(dataUrl,pageNo,totalPages,meta){return new Promise((resolve,reject)=>{
+ const requestId=Array.from(crypto.getRandomValues(new Uint8Array(16))).map(x=>x.toString(16).padStart(2,'0')).join('');
+ let frame=document.getElementById('pdfBoundaryFrame');if(!frame){frame=document.createElement('iframe');frame.name='pdfBoundaryFrame';frame.id='pdfBoundaryFrame';frame.style.display='none';document.body.appendChild(frame)}
+ const form=document.createElement('form');form.method='POST';form.action=API_URL;form.target='pdfBoundaryFrame';form.style.display='none';
+ const fields={action:'teacherPdfBoundaryAnalyze',session:session,requestId:requestId,data:dataUrl,page:String(pageNo),totalPages:String(totalPages),grade:meta.grade,track:meta.track,subject:meta.subject};
+ Object.keys(fields).forEach(k=>{const input=document.createElement('input');input.type='hidden';input.name=k;input.value=fields[k];form.appendChild(input)});
+ document.body.appendChild(form);form.submit();setTimeout(()=>{if(form.isConnected)form.remove()},60000);
+ let tries=0,finished=false;const timer=setInterval(()=>{tries++;api('teacherPdfBoundaryStatus',{requestId}).then(d=>{if(d.pending)return;finished=true;clearInterval(timer);resolve(d.result)}).catch(err=>{finished=true;clearInterval(timer);reject(err)});if(tries>=100&&!finished){clearInterval(timer);reject(new Error('Groq بیش از حد پاسخ‌گویی را طول داد؛ دوباره تلاش کن.'))}},1500);
+ });}
 async function startSmartImport(){
  const file=document.getElementById('smartFile').files[0],subject=document.getElementById('smartSubject').value.trim(),button=document.getElementById('smartImportButton');
  if(!file){notice('ابتدا فایل سؤال‌ها را انتخاب کن.');return}
@@ -253,37 +270,30 @@ async function startSmartImport(){
  if(!isPdf&&!/^image\/(png|jpeg|webp)$/.test(file.type)){notice('فرمت فایل پشتیبانی نمی‌شود.');return}
  button.disabled=true;document.getElementById('smartPreview').classList.add('hidden');smartExtractedQuestions=[];
  try{
-  let pages=isPdf?await getPdfPageCanvases(file):await getImageCanvas(file);
-  if(!window.Tesseract)throw new Error('موتور OCR بارگذاری نشد؛ اتصال اینترنت را بررسی و صفحه را تازه‌سازی کن.');
-  smartStatus('در حال بارگذاری موتور تشخیص متن فارسی…');
-  if(!smartOcrWorker)smartOcrWorker=await Tesseract.createWorker('fas+eng',1,{logger:m=>{if(m.status==='recognizing text')smartStatus(`در حال خواندن صفحه… ${Math.round((m.progress||0)*100)}٪`);}});
-  let anchors=[];
-  // OCR-first: unlike the previous build, keep each anchor's x/y position to separate columns.
+  const pages=isPdf?await getPdfPageCanvases(file):await getImageCanvas(file);
+  const meta={grade:document.getElementById('smartGrade').value,track:document.getElementById('smartTrack').value,subject:subject};
+  let total=0;
   for(let i=0;i<pages.length;i++){
-   smartStatus(`در حال تشخیص سؤال‌ها و ستون‌بندی صفحه ${i+1} از ${pages.length}…`);
-   const result=await smartOcrWorker.recognize(pages[i]);
-   const found=detectQuestionStarts(result);
-   found.forEach(a=>anchors.push({...a,page:i}));
-  }
-  let detectionMode='OCR مختصات‌دار و تشخیص ستون';
-  // Native PDF text is a fallback only; its item ordering is unreliable in some Persian two-column PDFs.
-  if(anchors.length<2&&isPdf){
-   anchors=[];
-   for(let i=0;i<pages.length;i++){
-    const native=(pages._pdfTextAnchors||[]).filter(a=>a.page===i);
-    native.forEach(a=>anchors.push(a));
+   smartStatus(`در حال ارسال صفحه ${i+1} از ${pages.length} به Groq Vision برای تشخیص محدوده سؤال‌ها…`);
+   const dataUrl=canvasToBoundaryDataUrl(pages[i]);
+   const result=await postPdfBoundaryPage(dataUrl,i+1,pages.length,meta);
+   const questions=(result&&Array.isArray(result.questions))?result.questions:[];
+   if(!questions.length)throw new Error(`در صفحه ${i+1} محدوده سؤالی تشخیص داده نشد. هیچ سؤالی ذخیره نشده است.`);
+   for(let j=0;j<questions.length;j++){
+    const q=questions[j],sx=pages[i].width/1000,sy=pages[i].height/1000;
+    const padX=Math.max(8,Math.round(pages[i].width*.008)),padY=Math.max(10,Math.round(pages[i].height*.009));
+    const x=Math.max(0,Math.floor(q.x*sx)-padX),y=Math.max(0,Math.floor(q.y*sy)-padY);
+    const right=Math.min(pages[i].width,Math.ceil((q.x+q.width)*sx)+padX),bottom=Math.min(pages[i].height,Math.ceil((q.y+q.height)*sy)+padY);
+    const seg={x0:x,x1:right,y:y,yEnd:bottom};
+    const data=composeQuestionCrop(pages[i],seg);
+    smartExtractedQuestions.push({_imageDataUrl:data,_sourcePage:i+1,_detectedNumber:q.number||String(total+1),_confidence:q.confidence,_reviewNote:q.review_note||'',_continuation:Boolean(q.is_continuation),correct_option:''});
+    total++;
    }
-   detectionMode='متن واقعی PDF (حالت جایگزین)';
+   smartStatus(`صفحه ${i+1} از ${pages.length}: ${questions.length} محدوده سؤال تشخیص داده شد. در حال بررسی صفحه بعد…`);
   }
-  if(!anchors.length)throw new Error('شروع سؤال‌ها پیدا نشد. ممکن است شماره‌گذاری فایل قابل تشخیص نباشد؛ فعلاً چیزی ذخیره نشده است.');
-  const segments=buildQuestionSegments(pages,anchors);
-  if(segments.length<2)throw new Error('کمتر از دو سؤال قابل تفکیک تشخیص داده شد؛ برای جلوگیری از ساخت برش اشتباه، چیزی ذخیره نشد.');
-  for(const seg of segments){
-   const dataUrl=composeQuestionCrop(pages[seg.page],seg);
-   smartExtractedQuestions.push({_imageDataUrl:dataUrl,_sourcePage:seg.page+1,_detectedNumber:seg.number,correct_option:''});
-  }
+  if(smartExtractedQuestions.length<2)throw new Error('کمتر از دو محدوده سؤال تشخیص داده شد؛ برای جلوگیری از ذخیره برش اشتباه، چیزی ذخیره نشد.');
   renderSmartPreview({questions:smartExtractedQuestions});
-  smartStatus(`${smartExtractedQuestions.length} برش اولیه ساخته شد. روش تشخیص: ${detectionMode}. سؤال‌ها بر اساس ستون و مختصات جدا شده‌اند؛ پیش از ذخیره، کامل بودن متن، گزینه‌ها و شکل هر برش را بررسی کن.`);
+  smartStatus(`${smartExtractedQuestions.length} برش با کمک Groq Vision ساخته شد. پاسخ صحیح توسط هوش مصنوعی تعیین نشده؛ تمام برش‌ها را بررسی کن.`);
   document.getElementById('smartPreview').classList.remove('hidden');
  }catch(e){smartStatus(e.message||'خطای نامشخص در پردازش فایل');notice(e.message||'خطای پردازش فایل');}
  finally{button.disabled=false;}
@@ -296,6 +306,7 @@ function renderSmartPreview(){
   const title=document.createElement('b');title.textContent=`برش ${i+1} — صفحه ${q._sourcePage} (شماره تشخیص‌داده‌شده: ${q._detectedNumber})`;
   const badge=document.createElement('span');badge.className='pill';badge.textContent='پاسخ تعیین نشده';
   head.append(title,badge);card.appendChild(head);
+  if(q._reviewNote||q._continuation){const note=document.createElement('div');note.className='muted';note.textContent=(q._continuation?'احتمال ادامه سؤال از صفحه قبل. ':'')+(q._reviewNote||'');card.appendChild(note)}
   const im=document.createElement('img');im.src=q._imageDataUrl;im.alt='تصویر کامل سؤال '+(i+1);im.style.cssText='width:100%;max-height:650px;object-fit:contain;background:#fff;border:1px solid #e5eaf2;border-radius:10px;margin:10px 0;cursor:zoom-in';im.onclick=()=>{const w=window.open();if(w){w.document.write('<img src="'+q._imageDataUrl+'" style="max-width:100%;height:auto">');w.document.title='پیش‌نمایش سؤال '+(i+1)}};card.appendChild(im);
   const lab=document.createElement('label');lab.textContent='پاسخ صحیح را معلم تعیین کند';
   const sel=document.createElement('select');sel.dataset.key='correct_option';sel.innerHTML='<option value="">انتخاب پاسخ صحیح</option>'+['A','B','C','D'].map(x=>`<option value="${x}">گزینه ${x}</option>`).join('');sel.value='';lab.appendChild(sel);card.appendChild(lab);
