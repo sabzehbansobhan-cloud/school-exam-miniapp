@@ -6,7 +6,7 @@
 <style>
 :root{--bg:#f3f6fb;--card:#fff;--ink:#172033;--muted:#6b7280;--blue:#3157d5;--line:#e5eaf2;--green:#138a54;--red:#c43c45}*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Tahoma,Arial,sans-serif;color:var(--ink);line-height:1.8}.wrap{max-width:900px;margin:auto;padding:18px}.top{background:linear-gradient(135deg,#243c9d,#5275e7);color:white;border-radius:20px;padding:22px;margin-bottom:16px;box-shadow:0 8px 25px #243c9d22}.top h1{font-size:22px;margin:0 0 5px}.muted{color:var(--muted);font-size:13px}.top .muted{color:#e3e9ff}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 4px 18px #17203308}.row{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.btn{border:0;border-radius:12px;background:var(--blue);color:white;padding:11px 17px;font:inherit;font-weight:bold;cursor:pointer}.btn:disabled{opacity:.5;cursor:not-allowed}.btn.secondary{background:#e9edfb;color:#2946a5}.btn.danger{background:#b83240}.pill{display:inline-block;background:#eef2ff;color:#2946a5;padding:4px 10px;border-radius:30px;font-size:12px}.exam{border:1px solid var(--line);border-radius:14px;padding:15px;margin:12px 0}.exam h3{margin:0 0 5px}.qbox{padding:17px 0;border-bottom:1px solid var(--line)}.qbox:last-child{border:0}.qtitle{font-weight:bold;margin:0 0 12px}.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:12px;margin:8px 0;cursor:pointer}.opt:has(input:checked){border-color:var(--blue);background:#f1f4ff}.opt input{margin-top:7px;accent-color:var(--blue)}.timer{font-weight:bold;font-size:19px;color:#fff;background:#162b79;padding:6px 14px;border-radius:12px}.status{padding:12px;border-radius:12px;background:#f0f4ff;margin:10px 0}.hidden{display:none!important}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.stat{background:#f7f8fc;border-radius:12px;padding:12px;text-align:center}.stat b{display:block;font-size:23px}.good{color:var(--green)}.bad{color:var(--red)}.foot{font-size:12px;color:var(--muted);text-align:center;padding:20px}
 </style>
-</head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script><script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>\n</head>
 <body><main class="wrap">
 <header class="top"><div class="row"><div><h1>سامانه آزمون مدرسه</h1><div class="muted" id="welcome">در حال اتصال به حساب کاربری…</div></div><span class="pill" style="background:#ffffff22;color:white">آزمون آنلاین</span></div></header>
 <div id="notice" class="status">در حال دریافت اطلاعات…</div>
@@ -27,21 +27,19 @@
 <section id="teacherClassAnalyticsView" class="card hidden"><div class="row"><h2 id="teacherClassAnalyticsTitle">تحلیل سؤال‌های کلاس</h2><button class="btn secondary" onclick="backToClassStudents()">بازگشت به کلاس</button></div><div id="teacherClassAnalyticsStats" class="grid"></div><div class="muted">درصد غلط از میان پاسخ‌های داده‌شده محاسبه می‌شود؛ سؤال‌های بدون پاسخ جداگانه نمایش داده می‌شوند.</div><div id="teacherClassAnalyticsItems"></div></section>
 <section id="teacherStudentPerformanceView" class="card hidden"><div class="row"><h2 id="teacherStudentPerformanceTitle">عملکرد دانش‌آموز</h2><button class="btn secondary" onclick="backToClassStudents()">بازگشت به فهرست کلاس</button></div><div id="teacherStudentStats" class="grid"></div><section class="exam"><h3>📈 نمودار پیشرفت دانش‌آموز</h3><div class="muted">مقایسه نمره دانش‌آموز با میانگین کلاس در آزمون‌های ثبت‌نهایی</div><div id="teacherStudentProgressChart" style="width:100%;overflow-x:auto;margin-top:12px"></div><div id="teacherStudentProgressLegend" class="muted"></div></section><div id="teacherStudentHistory"></div></section>
 <section id="smartImportView" class="card hidden">
- <div class="row"><h2>✨ ورود هوشمند سؤال‌ها</h2><button class="btn secondary" onclick="backToBank()">بازگشت</button></div>
- <div class="status">تصویر سؤال‌ها را بارگذاری کن. هوش مصنوعی متن و گزینه‌ها را استخراج می‌کند؛ پاسخ صحیح فقط در صورت وجود پاسخ‌نامه و اطمینان کافی ثبت می‌شود. تمام سؤال‌ها قبل از ورود به بانک قابل ویرایش هستند.</div>
+ <div class="row"><h2>📄 ورود خودکار سؤال از PDF و تصویر</h2><button class="btn secondary" onclick="backToBank()">بازگشت</button></div>
+ <div class="status">فایل PDF یا تصویر برگه سؤال را انتخاب کن. سیستم با OCR فارسی محل شروع سؤال‌ها را پیدا می‌کند و هر سؤال را همراه شکل، جدول و گزینه‌ها به‌صورت یک تصویر مستقل برش می‌زند. پاسخ صحیح را خود دبیر تعیین می‌کند؛ هیچ پاسخی توسط سیستم حدس زده نمی‌شود.</div>
  <div class="grid">
   <label>پایه<select id="smartGrade"><option value="10">دهم</option><option value="11" selected>یازدهم</option><option value="12">دوازدهم</option></select></label>
   <label>رشته<select id="smartTrack"><option>تجربی</option><option>ریاضی</option></select></label>
-  <label>درس<input id="smartSubject" placeholder="مثلاً زیست‌شناسی" required></label>
+  <label>درس<input id="smartSubject" placeholder="مثلاً فیزیک" required></label>
   <label>محل ذخیره سؤال‌ها<select id="smartVisibility"><option value="personal">بانک شخصی من</option><option value="shared">بانک مشترک مدرسه</option></select></label>
  </div>
- <label>تصویر سؤال‌ها (PNG، JPG یا WEBP)<input id="smartFile" type="file" accept="image/png,image/jpeg,image/webp"></label>
- <div class="muted">فقط تصویر بارگذاری کن؛ حجم فایل حداکثر ۶ مگابایت باشد. تصاویر و نمودارهای داخل عکس، در صورت تشخیص، برای سؤال مربوط برش می‌خورند.</div>
-  <div class="status">توجه: استخراج متن با GPT-6 Luna و پردازش شکل‌ها با مدل ویرایش تصویر GapGPT انجام می‌شود و ممکن است از اعتبار پولی حساب کم کند. قبل از اجرا از موجودی و قیمت‌ها مطمئن شو.</div>
- <label>توضیح اختیاری برای هوش مصنوعی<textarea id="smartHint" rows="2" placeholder="مثلاً پاسخ‌نامه در دو صفحه آخر فایل است."></textarea></label>
- <button class="btn" id="smartImportButton" onclick="startSmartImport()">استخراج سؤال‌ها</button>
+ <label>فایل سؤال‌ها (PDF، PNG، JPG یا WEBP)<input id="smartFile" type="file" accept="application/pdf,image/png,image/jpeg,image/webp"></label>
+ <div class="muted">پردازش در مرورگر انجام می‌شود و به API پولی هوش مصنوعی نیاز ندارد. برای نتیجه بهتر، فایل واضح و ترجیحاً تک‌ستونه باشد. فایل‌های خیلی حجیم یا اسکن‌های کم‌کیفیت ممکن است نیاز به بازبینی داشته باشند.</div>
+ <button class="btn" id="smartImportButton" onclick="startSmartImport()">تشخیص و برش سؤال‌ها</button>
  <div id="smartImportStatus" class="status hidden"></div>
- <div id="smartPreview" class="hidden"><h3>بازبینی سؤال‌های استخراج‌شده</h3><div class="muted">پاسخ‌های خالی یعنی هوش مصنوعی پاسخ قطعی پیدا نکرده است؛ قبل از ذخیره باید برای آن‌ها پاسخ صحیح تعیین کنی. سؤال‌های دارای علامت بررسی را با فایل اصلی تطبیق بده.</div><div id="smartQuestionCards"></div><div class="row"><span id="smartCount" class="pill"></span><button class="btn" id="smartSaveButton" onclick="saveSmartQuestions()">ذخیره سؤال‌های تأییدشده در بانک</button></div></div>
+ <div id="smartPreview" class="hidden"><h3>بازبینی برش‌ها و تعیین پاسخ صحیح</h3><div class="muted">تصویر هر سؤال را بررسی کن و پاسخ صحیح را خودت انتخاب کن. سؤال بدون پاسخ صحیح ذخیره نخواهد شد.</div><div id="smartQuestionCards"></div><div class="row"><span id="smartCount" class="pill"></span><button class="btn" id="smartSaveButton" onclick="saveSmartQuestions()">ذخیره سؤال‌های تصویری در بانک</button></div></div>
 </section>
 <section id="questionForm" class="card hidden">
  <div class="row"><h2 id="qFormTitle">افزودن سؤال</h2><button class="btn secondary" onclick="backToBank()">بازگشت</button></div>
@@ -53,11 +51,14 @@
    <label>فصل<input name="chapter"></label><label>مبحث<input name="topic"></label>
    <label>دشواری<select name="difficulty"><option>آسان</option><option selected>متوسط</option><option>دشوار</option></select></label>
   </div>
-  <label>متن سؤال<textarea name="text" required rows="4"></textarea></label>
-  <div class="grid"><label>گزینه A<input name="a" required></label><label>گزینه B<input name="b" required></label><label>گزینه C<input name="c" required></label><label>گزینه D<input name="d" required></label></div>
-  <div class="grid"><label>پاسخ صحیح<select name="correct"><option>A</option><option>B</option><option>C</option><option>D</option></select></label><label>انتشار<select name="visibility"><option value="personal">شخصی</option><option value="shared">مشترک مدرسه</option></select></label></div>
-  <label>توضیح پاسخ<textarea name="explanation" rows="2"></textarea></label>
-  <label>تصویر سؤال (اختیاری)<input type="file" id="questionImage" accept="image/png,image/jpeg,image/webp"></label><div id="imageState" class="muted"></div>
+  <label>نوع سؤال<select name="contentType" id="questionContentType" onchange="setQuestionContentType(this.value)"><option value="text">سؤال متنی (متن و گزینه‌ها جداگانه)</option><option value="image">سؤال تصویری (کل سؤال و گزینه‌ها داخل یک تصویر)</option></select></label>
+  <div id="textQuestionFields">
+   <label>متن سؤال<textarea name="text" rows="4"></textarea></label>
+   <div class="grid"><label>گزینه A<input name="a"></label><label>گزینه B<input name="b"></label><label>گزینه C<input name="c"></label><label>گزینه D<input name="d"></label></div>
+  </div>
+  <div class="grid"><label>پاسخ صحیح (توسط معلم)<select name="correct"><option>A</option><option>B</option><option>C</option><option>D</option></select></label><label>انتشار<select name="visibility"><option value="personal">شخصی</option><option value="shared">مشترک مدرسه</option></select></label></div>
+  <label>توضیح پاسخ اختیاری<textarea name="explanation" rows="2"></textarea></label>
+  <label id="questionImageLabel">تصویر سؤال (در سؤال تصویری الزامی؛ در سؤال متنی اختیاری)<input type="file" id="questionImage" accept="image/png,image/jpeg,image/webp"></label><div id="imageState" class="muted"></div>
   <button class="btn" type="submit">ذخیره سؤال</button>
  </form>
 </section>
@@ -66,6 +67,7 @@
 <section id="examView" class="card hidden"><div class="row"><div><h2 id="examTitle">آزمون</h2><div class="muted" id="examMeta"></div></div><div class="timer" id="timer">--:--</div></div><div class="status">پاسخ‌ها به‌صورت خودکار ذخیره می‌شوند. تا پایان آزمون می‌توانی گزینه‌ها را تغییر بدهی.</div><div id="questions"></div><div class="row" style="margin-top:18px"><span class="muted" id="answeredCount"></span><button class="btn danger" id="submitBtn" onclick="confirmSubmit()">ثبت نهایی آزمون</button></div></section>
 <section id="resultView" class="card hidden"><h2>نتیجه آزمون</h2><div id="resultContent"></div><button class="btn secondary" onclick="showList()">بازگشت به آزمون‌ها</button></section>
 <div class="foot">لطفاً تا ثبت نهایی آزمون، صفحه را نبند.</div></main>
+<div id="questionImageLightbox" class="hidden" onclick="closeQuestionImage()" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;padding:16px;cursor:zoom-out"><img id="questionImageLightboxImg" alt="نمای بزرگ تصویر سؤال" style="max-width:100%;max-height:100%;object-fit:contain"></div>
 <script>
 const API_URL='https://script.google.com/macros/s/AKfycbzcLYFPUAhD6gxC30OkUsYYbVqFvLFL9OR2xMRdm9DsxIYq1LCnUK8ADuJH96nir2Kd/exec';
 const session=new URLSearchParams(location.search).get('session');let active=null,timerHandle=null,remaining=0,answerState={},saving=0;
@@ -75,7 +77,10 @@ function api(action,params={}){return new Promise((resolve,reject)=>{if(!session
 
 let currentScope='personal',editQuestionId='',selectedImageUrl='',questionTimer=null;
 function hideAllViews(){['teacherView','questionForm','examBuilder','examCopyBuilder','teacherExamList','teacherResultsView','teacherAttemptView','teacherClassesView','teacherClassStudentsView','teacherStudentPerformanceView','teacherClassAnalyticsView','adminTeacherClassesView','smartImportView','listView','examView','resultView'].forEach(id=>document.getElementById(id).classList.add('hidden'))}
-function openQuestionForm(q){editQuestionId=q?q.questionId:'';selectedImageUrl=q?q.image||'':'';hideAllViews();document.getElementById('questionForm').classList.remove('hidden');document.getElementById('qFormTitle').textContent=q?'ویرایش سؤال':'افزودن سؤال';const f=document.getElementById('qForm');f.reset();if(q){Object.keys(q).forEach(k=>{if(f.elements[k])f.elements[k].value=q[k]||''})}document.getElementById('imageState').textContent=selectedImageUrl?'تصویر قبلی متصل است.':''}
+function openQuestionForm(q){editQuestionId=q?q.questionId:'';selectedImageUrl=q?q.image||'':'';hideAllViews();document.getElementById('questionForm').classList.remove('hidden');document.getElementById('qFormTitle').textContent=q?'ویرایش سؤال':'افزودن سؤال';const f=document.getElementById('qForm');f.reset();if(q){Object.keys(q).forEach(k=>{if(f.elements[k])f.elements[k].value=q[k]||''})}f.elements.contentType.value=q?(q.contentType||'text'):'text';setQuestionContentType(f.elements.contentType.value);document.getElementById('imageState').textContent=selectedImageUrl?'تصویر قبلی متصل است.':''}
+function setQuestionContentType(type){const image=String(type)==='image',wrap=document.getElementById('textQuestionFields'),f=document.getElementById('qForm');wrap.classList.toggle('hidden',image);['text','a','b','c','d'].forEach(k=>{const el=f.elements[k];if(el){el.required=!image;el.disabled=image;if(image)el.value=''}});document.getElementById('questionImage').required=image&&!selectedImageUrl;document.getElementById('questionImageLabel').querySelector('label');document.getElementById('questionImageLabel').firstChild.textContent=image?'تصویر کامل سؤال و هر چهار گزینه (الزامی)':'تصویر سؤال (اختیاری)'}
+function openQuestionImage(src){if(!src)return;const box=document.getElementById('questionImageLightbox');document.getElementById('questionImageLightboxImg').src=getDisplayImageUrl(src);box.classList.remove('hidden');box.style.display='flex'}
+function closeQuestionImage(){const box=document.getElementById('questionImageLightbox');box.classList.add('hidden');box.style.display='none';document.getElementById('questionImageLightboxImg').src=''}
 function backToBank(){hideAllViews();document.getElementById('teacherView').classList.remove('hidden');loadQuestions(currentScope)}
 function debouncedQuestions(){clearTimeout(questionTimer);questionTimer=setTimeout(()=>loadQuestions(currentScope),350)}
 function getDisplayImageUrl(raw){
@@ -86,8 +91,8 @@ function getDisplayImageUrl(raw){
  return value;
 }
 function parseQuestionImages(raw){try{const v=JSON.parse(String(raw||''));if(Array.isArray(v))return v.map(String).filter(Boolean);if(typeof v==='string'&&v)return [v]}catch(e){}return raw?[String(raw)]:[]}
-function appendQuestionImages(parent,raw,maxHeight){parseQuestionImages(raw).forEach((url,i)=>{const img=document.createElement('img');img.src=getDisplayImageUrl(url);img.referrerPolicy='no-referrer';img.alt='تصویر '+(i+1)+' سؤال';img.style.cssText='display:block;max-width:100%;max-height:'+(maxHeight||360)+'px;height:auto;object-fit:contain;margin:10px auto;border-radius:10px';parent.appendChild(img)})}
-function loadQuestions(scope){currentScope=scope||currentScope;document.getElementById('bankTitle').textContent=currentScope==='personal'?'بانک شخصی من':'بانک مشترک مدرسه';api('teacherQuestions',{scope:currentScope,q:document.getElementById('searchQ').value}).then(d=>{const root=document.getElementById('questionList');root.innerHTML='';if(!d.questions.length){root.innerHTML='<p class="muted">سؤالی در این بخش ثبت نشده است.</p>';return}d.questions.forEach(q=>{const el=document.createElement('div');el.className='exam';el.innerHTML=`<b>${esc(q.subject)} | ${esc(q.chapter)} | ${esc(q.difficulty)}</b><p>${esc(q.text)}</p><div class="muted">پایه ${esc(q.grade)} | ${esc(q.track)} | ${q.visibility==='shared'?'مشترک':'شخصی'} | ${q.status==='active'?'فعال':'غیرفعال'}</div><div class="questionImages"></div><div class="row"></div>`;appendQuestionImages(el.querySelector('.questionImages'),q.image,220);const row=el.querySelector('.row');if(q.canEdit){const e=document.createElement('button');e.className='btn secondary';e.textContent='ویرایش';e.onclick=()=>openQuestionForm(q);const t=document.createElement('button');t.className='btn danger';t.textContent=q.status==='active'?'غیرفعال‌کردن':'فعال‌کردن';t.onclick=()=>api('teacherToggleQuestion',{questionId:q.questionId}).then(()=>loadQuestions(currentScope)).catch(x=>notice(x.message));row.append(e,t)}root.appendChild(el)})}).catch(e=>notice(e.message))}
+function appendQuestionImages(parent,raw,maxHeight){parseQuestionImages(raw).forEach((url,i)=>{const img=document.createElement('img');img.src=getDisplayImageUrl(url);img.referrerPolicy='no-referrer';img.alt='تصویر '+(i+1)+' سؤال؛ برای بزرگ‌نمایی لمس کنید';img.style.cssText='display:block;max-width:100%;max-height:'+(maxHeight||360)+'px;height:auto;object-fit:contain;margin:10px auto;border-radius:10px;cursor:zoom-in';img.onclick=()=>openQuestionImage(url);parent.appendChild(img)})}
+function loadQuestions(scope){currentScope=scope||currentScope;document.getElementById('bankTitle').textContent=currentScope==='personal'?'بانک شخصی من':'بانک مشترک مدرسه';api('teacherQuestions',{scope:currentScope,q:document.getElementById('searchQ').value}).then(d=>{const root=document.getElementById('questionList');root.innerHTML='';if(!d.questions.length){root.innerHTML='<p class="muted">سؤالی در این بخش ثبت نشده است.</p>';return}d.questions.forEach(q=>{const el=document.createElement('div');el.className='exam';el.innerHTML=`<b>${esc(q.subject)} | ${esc(q.chapter)} | ${esc(q.difficulty)} | ${q.contentType==='image'?'سؤال تصویری':'سؤال متنی'}</b>${q.contentType==='image'?'':'<p>'+esc(q.text)+'</p>'}<div class="muted">پایه ${esc(q.grade)} | ${esc(q.track)} | ${q.visibility==='shared'?'مشترک':'شخصی'} | ${q.status==='active'?'فعال':'غیرفعال'}</div><div class="questionImages"></div><div class="row"></div>`;appendQuestionImages(el.querySelector('.questionImages'),q.image,220);const row=el.querySelector('.row');if(q.canEdit){const e=document.createElement('button');e.className='btn secondary';e.textContent='ویرایش';e.onclick=()=>openQuestionForm(q);const t=document.createElement('button');t.className='btn danger';t.textContent=q.status==='active'?'غیرفعال‌کردن':'فعال‌کردن';t.onclick=()=>api('teacherToggleQuestion',{questionId:q.questionId}).then(()=>loadQuestions(currentScope)).catch(x=>notice(x.message));row.append(e,t)}root.appendChild(el)})}).catch(e=>notice(e.message))}
 function uploadQuestionImage(data){return new Promise((resolve,reject)=>{
  const requestId=Array.from(crypto.getRandomValues(new Uint8Array(16))).map(x=>x.toString(16).padStart(2,'0')).join('');
  let frame=document.getElementById('imageUploadFrame');if(!frame){frame=document.createElement('iframe');frame.name='imageUploadFrame';frame.id='imageUploadFrame';frame.style.display='none';document.body.appendChild(frame)}
@@ -107,87 +112,147 @@ function postTeacherQuestion(payload){return new Promise((resolve,reject)=>{
  document.body.appendChild(form);form.submit();setTimeout(()=>{if(form.isConnected)form.remove()},60000);let tries=0;
  const timer=setInterval(()=>{tries++;api('teacherQuestionSaveStatus',{requestId}).then(d=>{if(d.pending)return;clearInterval(timer);resolve(d.result)}).catch(err=>{clearInterval(timer);reject(err)});if(tries>=40){clearInterval(timer);reject(new Error('ثبت سؤال بیش از حد طول کشید. صفحه را تازه‌سازی نکن؛ دوباره وضعیت را بررسی کن.'))}},1000);
  })}
-async function saveQuestion(ev){ev.preventDefault();const f=ev.target,b=f.querySelector('button[type=submit]');b.disabled=true;try{const file=document.getElementById('questionImage').files[0];if(file){if(file.size>3*1024*1024)throw new Error('حجم تصویر حداکثر ۳ مگابایت باشد.');const data=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)});document.getElementById('imageState').textContent='در حال بارگذاری تصویر…';selectedImageUrl=await uploadQuestionImage(data)}const p=Object.fromEntries(new FormData(f).entries());p.questionId=editQuestionId;p.image=selectedImageUrl;const result=await postTeacherQuestion(p);notice(result.message);backToBank()}catch(e){notice(e.message)}finally{b.disabled=false}}
+async function saveQuestion(ev){ev.preventDefault();const f=ev.target,b=f.querySelector('button[type=submit]');b.disabled=true;try{const file=document.getElementById('questionImage').files[0];if(file){if(file.size>3*1024*1024)throw new Error('حجم تصویر حداکثر ۳ مگابایت باشد.');const data=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)});document.getElementById('imageState').textContent='در حال بارگذاری تصویر…';selectedImageUrl=await uploadQuestionImage(data)}const p=Object.fromEntries(new FormData(f).entries());p.questionId=editQuestionId;p.contentType=f.elements.contentType.value;p.image=selectedImageUrl;const result=await postTeacherQuestion(p);notice(result.message);backToBank()}catch(e){notice(e.message)}finally{b.disabled=false}}
 
 
 let smartExtractedQuestions=[];
+let smartOcrWorker=null;
 function openSmartImport(){hideAllViews();document.getElementById('smartImportView').classList.remove('hidden');document.getElementById('smartPreview').classList.add('hidden');document.getElementById('smartImportStatus').classList.add('hidden');document.getElementById('smartFile').value='';smartExtractedQuestions=[];}
-function postSmartImport(data,fileName,mimeType){return new Promise((resolve,reject)=>{
- const requestId=Array.from(crypto.getRandomValues(new Uint8Array(16))).map(x=>x.toString(16).padStart(2,'0')).join('');
- let frame=document.getElementById('smartImportFrame');if(!frame){frame=document.createElement('iframe');frame.name='smartImportFrame';frame.id='smartImportFrame';frame.style.display='none';document.body.appendChild(frame)}
- const form=document.createElement('form');form.method='POST';form.action=API_URL;form.target='smartImportFrame';form.style.display='none';
- const fields={action:'teacherSmartImport',session:session,requestId:requestId,data:data,fileName:fileName,mimeType:mimeType,grade:document.getElementById('smartGrade').value,track:document.getElementById('smartTrack').value,subject:document.getElementById('smartSubject').value.trim(),hint:document.getElementById('smartHint').value.trim()};
- Object.keys(fields).forEach(k=>{const input=document.createElement('input');input.type='hidden';input.name=k;input.value=fields[k];form.appendChild(input)});document.body.appendChild(form);form.submit();setTimeout(()=>{if(form.isConnected)form.remove()},120000);
- let tries=0;const timer=setInterval(()=>{tries++;api('teacherSmartImportStatus',{requestId}).then(d=>{if(d.pending)return;clearInterval(timer);resolve(d.result)}).catch(err=>{clearInterval(timer);reject(err)});if(tries>=180){clearInterval(timer);reject(new Error('پردازش فایل بیش از حد طول کشید. فایل کوتاه‌تری امتحان کن.'))}},2000);
- })}
-async function startSmartImport(){
- const file=document.getElementById('smartFile').files[0],subject=document.getElementById('smartSubject').value.trim(),button=document.getElementById('smartImportButton'),status=document.getElementById('smartImportStatus');
- if(!file){notice('ابتدا فایل سؤال‌ها را انتخاب کن.');return}if(!subject){notice('نام درس را وارد کن.');return}
- if(file.size>6*1024*1024){notice('حجم فایل حداکثر ۶ مگابایت باشد.');return}
- if(!/^image\/(png|jpeg|webp)$/.test(file.type)){notice('فعلاً فقط تصویر PNG، JPG یا WEBP پشتیبانی می‌شود؛ ورود PDF در فاز بعدی فعال خواهد شد.');return}
- button.disabled=true;status.classList.remove('hidden');document.getElementById('smartPreview').classList.add('hidden');smartExtractedQuestions=[];
- try{
-  status.textContent='در حال استخراج متن و تشخیص شکل‌ها با GPT-6 Luna…';
-  const data=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(new Error('خواندن فایل ناموفق بود.'));r.readAsDataURL(file)});
-  const result=await postSmartImport(data,file.name,file.type);smartExtractedQuestions=result.questions||[];
-  if(smartExtractedQuestions.length)await prepareSmartVisualCrops(data,smartExtractedQuestions);
-  if(!smartExtractedQuestions.length)throw new Error('سؤال تستی قابل تشخیصی از فایل استخراج نشد.');
-  renderSmartPreview({questions:smartExtractedQuestions});
-  status.textContent=`${smartExtractedQuestions.length} سؤال استخراج شد. شکل‌های تشخیص‌داده‌شده با مدل ویرایش تصویر پردازش شده‌اند؛ قبل از ذخیره همه موارد را با اصل تصویر تطبیق بده.`;
-  document.getElementById('smartPreview').classList.remove('hidden');
- }catch(e){status.textContent=e.message||'خطای نامشخص در پردازش فایل';notice(status.textContent)}finally{button.disabled=false}
-}
-function postSmartVisualEdit(dataUrl,label){return new Promise((resolve,reject)=>{
-  const requestId=Array.from(crypto.getRandomValues(new Uint8Array(16))).map(x=>x.toString(16).padStart(2,'0')).join('');
-  let frame=document.getElementById('smartVisualEditFrame');if(!frame){frame=document.createElement('iframe');frame.name='smartVisualEditFrame';frame.id='smartVisualEditFrame';frame.style.display='none';document.body.appendChild(frame)}
-  const form=document.createElement('form');form.method='POST';form.action=API_URL;form.target='smartVisualEditFrame';form.style.display='none';
-  const fields={action:'teacherSmartVisualEdit',session:session,requestId:requestId,data:dataUrl,label:label||'شکل سؤال'};
-  Object.keys(fields).forEach(k=>{const input=document.createElement('input');input.type='hidden';input.name=k;input.value=fields[k];form.appendChild(input)});
-  document.body.appendChild(form);form.submit();setTimeout(()=>{if(form.isConnected)form.remove()},120000);
-  let tries=0;const timer=setInterval(()=>{tries++;api('teacherSmartVisualEditStatus',{requestId}).then(d=>{if(d.pending)return;clearInterval(timer);resolve(d.dataUrl)}).catch(err=>{clearInterval(timer);reject(err)});if(tries>=150){clearInterval(timer);reject(new Error('پردازش تصویر بیش از حد طول کشید.'))}},2000);
-})}
-function describeVisualPosition(region,imgWidth,imgHeight){
- const cx=(Number(region.x)+Number(region.width)/2)/1000,cy=(Number(region.y)+Number(region.height)/2)/1000;
- const vertical=cy<0.34?'بالای صفحه':(cy>0.66?'پایین صفحه':'وسط صفحه');
- const horizontal=cx<0.34?'سمت چپ':(cx>0.66?'سمت راست':'نزدیک مرکز');
- return vertical+' '+horizontal;
-}
-async function prepareSmartVisualCrops(dataUrl,questions=smartExtractedQuestions){
- const img=await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=()=>reject(new Error('تصویر اصلی برای پردازش قابل خواندن نیست.'));im.src=dataUrl});
- const assigned=[];let editCount=0;
- const overlapRatio=(a,b)=>{const x1=Math.max(a.x,b.x),y1=Math.max(a.y,b.y),x2=Math.min(a.x+a.w,b.x+b.w),y2=Math.min(a.y+a.h,b.y+b.h);const inter=Math.max(0,x2-x1)*Math.max(0,y2-y1);return inter/Math.max(1,Math.min(a.w*a.h,b.w*b.h))};
- for(let qi=0;qi<questions.length;qi++){
-  const q=questions[qi];q._visualDataUrls=[];q._visualWarnings=[];
-  const regions=Array.isArray(q.visual_regions)?q.visual_regions:[];
-  for(const r of regions){
-   const nx=Number(r.x),ny=Number(r.y),nw=Number(r.width),nh=Number(r.height);
-   if(![nx,ny,nw,nh].every(Number.isFinite)||nw<15||nh<15||nx<0||ny<0||nx+nw>1010||ny+nh>1010)continue;
-   const box={x:nx,y:ny,w:nw,h:nh};
-   const duplicate=assigned.some(a=>a.questionIndex!==qi&&overlapRatio(a.box,box)>0.72);
-   if(duplicate){q._visualWarnings.push('محدوده‌ای مشابه برای سؤال دیگری تشخیص داده شد؛ برای جلوگیری از اتصال تصویر اشتباه، این مورد متصل نشد.');continue;}
-   if(editCount>=8){q._visualWarnings.push('برای کنترل هزینه، پردازش هوشمند بیش از ۸ شکل در هر تصویر انجام نشد.');continue;}
-   const position=q.visual_location||describeVisualPosition(r,img.naturalWidth,img.naturalHeight);
-   const questionHint=String(q.text||'').replace(/\s+/g,' ').slice(0,180);
-   const label='شکل/نمودار سؤال '+(qi+1)+'؛ موقعیت تقریبی در صفحه: '+position+'؛ موضوع سؤال برای تشخیص شکل درست: '+questionHint;
-   try{
-    const status=document.getElementById('smartImportStatus');if(status)status.textContent='در حال جداکردن خود شکل سؤال '+(qi+1)+' از صفحه اصلی…';
-    // Important: send the ORIGINAL full page, not a browser crop. This is the same workflow as the successful standalone image-edit test.
-    const isolated=await postSmartVisualEdit(dataUrl,label);
-    if(!isolated||!/^data:image\/(png|jpeg|webp);base64,/.test(isolated))throw new Error('خروجی تصویر معتبر نبود.');
-    q._visualDataUrls.push(isolated);assigned.push({questionIndex:qi,box});
-   }catch(editError){q._visualWarnings.push('استخراج مستقل شکل انجام نشد؛ برای جلوگیری از افزودن متن سؤال به‌عنوان تصویر، برش ناقص ذخیره نشد. '+(editError.message||''));}
-   editCount++;
-  }
-  if(q.has_visual&&!regions.length)q._visualWarnings.push('وجود شکل تشخیص داده شد، اما موقعیت آن به اندازه کافی مشخص نبود؛ تصویر اشتباه به سؤال متصل نشد.');
+function smartStatus(t){const el=document.getElementById('smartImportStatus');el.classList.remove('hidden');el.textContent=t;}
+function toAsciiDigits(s){return String(s||'').replace(/[۰-۹٠-٩]/g,c=>'۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩'.indexOf(c)>=10?String('0123456789'[('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩'.indexOf(c)-10)]):String('0123456789'['۰۱۲۳۴۵۶۷۸۹'.indexOf(c)]));}
+function detectQuestionStarts(ocr){
+ const lines=(ocr&&ocr.data&&ocr.data.lines)||[],out=[];
+ for(const line of lines){
+  const t=String(line.text||'').trim();
+  // Only accept a number at the beginning of an OCR line, followed by common question delimiters.
+  const m=t.match(/^\s*([0-9۰-۹٠-٩]{1,2})\s*[\.\٫،\)\]\-:：]/);
+  if(!m)continue;
+  const n=Number(toAsciiDigits(m[1]));if(!Number.isFinite(n)||n<1||n>100)continue;
+  const b=line.bbox||{};if(!Number.isFinite(b.y0)||!Number.isFinite(b.y1))continue;
+  if(out.length && b.y0-out[out.length-1].y0<48)continue;
+  out.push({number:n,y0:b.y0,y1:b.y1,text:t});
  }
+ // Remove duplicate OCR lines and sort by vertical position.
+ out.sort((a,b)=>a.y0-b.y0);
+ return out.filter((x,i,a)=>!i||Math.abs(x.y0-a[i-1].y0)>12);
 }
-
-function renderSmartPreview(result){const root=document.getElementById('smartQuestionCards');root.innerHTML='';smartExtractedQuestions.forEach((q,i)=>{const card=document.createElement('div');card.className='exam';card.dataset.index=i;const header=document.createElement('div');header.className='row';header.innerHTML=`<b>سؤال ${i+1}${q._sourcePage?' (صفحه '+q._sourcePage+')':''}</b><span class="pill">${q.correct_option?'پاسخ استخراج شد':'نیازمند تعیین پاسخ'}</span>`;card.appendChild(header);if(q.has_visual||q.review_note){const warn=document.createElement('div');warn.className='status';warn.textContent=(q.has_visual?'🖼️ شکل/نمودار مرتبط: '+(q._visualDataUrls||[]).length+' مورد. ':'')+([q.review_note,...(q._visualWarnings||[])].filter(Boolean).join(' | '));card.appendChild(warn)}if(q._visualDataUrls&&q._visualDataUrls.length){const imgs=document.createElement('div');imgs.className='grid';q._visualDataUrls.forEach((src,j)=>{const wrap=document.createElement('div');wrap.className='exam';const label=document.createElement('div');label.className='muted';label.textContent='تصویر '+(j+1);const im=document.createElement('img');im.src=src;im.style.cssText='max-width:100%;max-height:220px;display:block;margin:auto;object-fit:contain';wrap.append(label,im);imgs.appendChild(wrap)});card.appendChild(imgs)}
- const addField=(label,key,value,tag='input')=>{const l=document.createElement('label');l.textContent=label;const el=document.createElement(tag);el.value=value||'';if(tag==='textarea')el.rows=3;el.dataset.key=key;l.appendChild(el);card.appendChild(l)};
- addField('متن سؤال','text',q.text,'textarea');[['گزینه A','a'],['گزینه B','b'],['گزینه C','c'],['گزینه D','d']].forEach(([label,key])=>addField(label,key,q[key]));const grid=document.createElement('div');grid.className='grid';const correctLabel=document.createElement('label');correctLabel.textContent='پاسخ صحیح';const select=document.createElement('select');select.dataset.key='correct_option';select.innerHTML='<option value="">هنوز مشخص نشده</option>'+['A','B','C','D'].map(x=>`<option value="${x}">${x}</option>`).join('');select.value=q.correct_option||'';correctLabel.appendChild(select);grid.appendChild(correctLabel);[['فصل','chapter'],['مبحث','topic']].forEach(([label,key])=>{const l=document.createElement('label');l.textContent=label;const inp=document.createElement('input');inp.dataset.key=key;inp.value=q[key]||'';l.appendChild(inp);grid.appendChild(l)});const diffLabel=document.createElement('label');diffLabel.textContent='دشواری';const diff=document.createElement('select');diff.dataset.key='difficulty';diff.innerHTML=['آسان','متوسط','دشوار'].map(x=>`<option>${x}</option>`).join('');diff.value=q.difficulty||'متوسط';diffLabel.appendChild(diff);grid.appendChild(diffLabel);card.appendChild(grid);addField('توضیح پاسخ','explanation',q.explanation,'textarea');const del=document.createElement('button');del.className='btn danger';del.type='button';del.textContent='حذف این سؤال';del.onclick=()=>{smartExtractedQuestions[i]._deleted=true;card.remove();updateSmartCount()};card.appendChild(del);root.appendChild(card)});updateSmartCount()}
-function updateSmartCount(){const n=smartExtractedQuestions.filter(q=>!q._deleted).length;document.getElementById('smartCount').textContent=`${n} سؤال برای ذخیره`}
-async function saveSmartQuestions(){const cards=[...document.querySelectorAll('#smartQuestionCards .exam')],button=document.getElementById('smartSaveButton');if(!cards.length){notice('سؤالی برای ذخیره وجود ندارد.');return}const records=[];for(const card of cards){const i=Number(card.dataset.index),source=smartExtractedQuestions[i],q={};card.querySelectorAll('[data-key]').forEach(el=>q[el.dataset.key]=el.value.trim());if(!q.text||!q.a||!q.b||!q.c||!q.d||!q.correct_option){notice('برای ذخیره هر سؤال باید متن، چهار گزینه و پاسخ صحیح تکمیل شود.');return}records.push({...q,_visualDataUrls:source._visualDataUrls||[],grade:document.getElementById('smartGrade').value,track:document.getElementById('smartTrack').value,subject:document.getElementById('smartSubject').value.trim(),visibility:document.getElementById('smartVisibility').value})}button.disabled=true;let saved=0;try{for(const q of records){const urls=[];for(let j=0;j<q._visualDataUrls.length;j++){document.getElementById('smartImportStatus').textContent=`در حال ذخیره تصاویر سؤال ${saved+1}؛ تصویر ${j+1} از ${q._visualDataUrls.length}…`;urls.push(await uploadQuestionImage(q._visualDataUrls[j]))}const payload={...q,image:urls.length?JSON.stringify(urls):''};delete payload._visualDataUrls;await postTeacherQuestion(payload);saved++;document.getElementById('smartImportStatus').textContent=`در حال ذخیره سؤال‌ها… ${saved} از ${records.length}`}notice(`${saved} سؤال با موفقیت ذخیره شد؛ تصاویر تشخیص‌داده‌شده نیز به سؤال‌های مربوط متصل شدند.`);backToBank()}catch(e){notice(`تا اینجا ${saved} سؤال ذخیره شد؛ خطا: ${e.message}`)}finally{button.disabled=false}}
-
+async function getPdfPageCanvases(file){
+ if(!window.pdfjsLib)throw new Error('کتابخانه PDF بارگذاری نشد؛ اتصال اینترنت را بررسی و صفحه را تازه‌سازی کن.');
+ pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+ const bytes=await file.arrayBuffer(),pdf=await pdfjsLib.getDocument({data:bytes}).promise;
+ if(pdf.numPages>35)throw new Error('برای جلوگیری از کندی، فعلاً حداکثر ۳۵ صفحه در هر بار پشتیبانی می‌شود.');
+ const pages=[];
+ for(let i=1;i<=pdf.numPages;i++){
+  smartStatus(`در حال آماده‌سازی صفحه ${i} از ${pdf.numPages}…`);
+  const page=await pdf.getPage(i),viewport=page.getViewport({scale:1.65});
+  const canvas=document.createElement('canvas');canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);
+  await page.render({canvasContext:canvas.getContext('2d'),viewport}).promise;
+  pages.push(canvas);
+ }
+ return pages;
+}
+async function getImageCanvas(file){
+ const url=URL.createObjectURL(file);
+ try{const img=await new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(im);im.onerror=rej;im.src=url;});
+ const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;c.getContext('2d').drawImage(img,0,0);return [c];}
+ finally{URL.revokeObjectURL(url);}
+}
+function composeQuestionCrop(pages,start,end){
+ const parts=[];
+ for(let pi=start.page;pi<=end.page;pi++){
+  const c=pages[pi],y1=pi===start.page?start.y:0,y2=pi===end.page?end.y:c.height;
+  const top=Math.max(0,Math.floor(y1)),bottom=Math.min(c.height,Math.ceil(y2));
+  if(bottom-top>10)parts.push({canvas:c,top,height:bottom-top});
+ }
+ if(!parts.length)throw new Error('ناحیه برش سؤال خالی است.');
+ const width=Math.max(...parts.map(x=>x.canvas.width)),height=parts.reduce((a,x)=>a+x.height,0);
+ const out=document.createElement('canvas');out.width=width;out.height=height;
+ const ctx=out.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);
+ let y=0;for(const p of parts){ctx.drawImage(p.canvas,0,p.top,p.canvas.width,p.height,0,y,p.canvas.width,p.height);y+=p.height;}
+ return out.toDataURL('image/jpeg',0.94);
+}
+async function startSmartImport(){
+ const file=document.getElementById('smartFile').files[0],subject=document.getElementById('smartSubject').value.trim(),button=document.getElementById('smartImportButton');
+ if(!file){notice('ابتدا فایل سؤال‌ها را انتخاب کن.');return}
+ if(!subject){notice('نام درس را وارد کن.');return}
+ if(file.size>25*1024*1024){notice('حجم فایل حداکثر ۲۵ مگابایت باشد.');return}
+ const isPdf=file.type==='application/pdf'||/\.pdf$/i.test(file.name);
+ if(!isPdf&&!/^image\/(png|jpeg|webp)$/.test(file.type)){notice('فرمت فایل پشتیبانی نمی‌شود.');return}
+ button.disabled=true;document.getElementById('smartPreview').classList.add('hidden');smartExtractedQuestions=[];
+ try{
+  let pages=isPdf?await getPdfPageCanvases(file):await getImageCanvas(file);
+  if(!window.Tesseract)throw new Error('موتور OCR بارگذاری نشد؛ اتصال اینترنت را بررسی کن.');
+  smartStatus('در حال بارگذاری موتور تشخیص متن فارسی (بار اول ممکن است کمی طول بکشد)…');
+  if(!smartOcrWorker)smartOcrWorker=await Tesseract.createWorker('fas+eng',1,{logger:m=>{if(m.status==='recognizing text')smartStatus(`در حال خواندن متن صفحه… ${Math.round((m.progress||0)*100)}٪`);}});
+  const anchors=[];
+  for(let i=0;i<pages.length;i++){
+   smartStatus(`در حال تشخیص شماره سؤال‌ها در صفحه ${i+1} از ${pages.length}…`);
+   const result=await smartOcrWorker.recognize(pages[i]);
+   const found=detectQuestionStarts(result);
+   found.forEach(a=>anchors.push({page:i,y:a.y0,text:a.text,number:a.number}));
+  }
+  if(!anchors.length)throw new Error('شماره شروع سؤال‌ها با اطمینان کافی پیدا نشد. فایل باید شماره‌گذاری واضح داشته باشد؛ فعلاً چیزی ذخیره نشده است.');
+  anchors.sort((a,b)=>a.page-b.page||a.y-b.y);
+  // Ignore duplicate detections on the same line. Preserve document order even if OCR misreads numbering.
+  const clean=anchors.filter((a,i)=>!i||a.page!==anchors[i-1].page||Math.abs(a.y-anchors[i-1].y)>18);
+  const scale=pages[0].height/(pages[0].height||1);
+  for(let i=0;i<clean.length;i++){
+   const a=clean[i],next=clean[i+1]||{page:pages.length-1,y:pages[pages.length-1].height-24};
+   const pad=Math.max(8,Math.round(pages[a.page].height*0.008));
+   const start={page:a.page,y:Math.max(0,a.y-pad)},end={page:next.page,y:Math.max(0,next.y-pad)};
+   if(end.page===start.page&&end.y-start.y<45)continue;
+   const dataUrl=composeQuestionCrop(pages,start,end);
+   smartExtractedQuestions.push({_imageDataUrl:dataUrl,_sourcePage:a.page+1,_detectedNumber:a.number,correct_option:''});
+  }
+  if(!smartExtractedQuestions.length)throw new Error('برش معتبری تولید نشد. شماره‌گذاری یا کیفیت فایل را بررسی کن.');
+  renderSmartPreview({questions:smartExtractedQuestions});
+  smartStatus(`${smartExtractedQuestions.length} برش ساخته شد. ترتیب بر اساس جایگاه در فایل است؛ شماره‌های OCR فقط راهنما هستند. همه تصاویر را بررسی و پاسخ صحیح را تعیین کن.`);
+  document.getElementById('smartPreview').classList.remove('hidden');
+ }catch(e){smartStatus(e.message||'خطای نامشخص در پردازش فایل');notice(e.message||'خطای پردازش فایل');}
+ finally{button.disabled=false;}
+}
+function renderSmartPreview(){
+ const root=document.getElementById('smartQuestionCards');root.innerHTML='';
+ smartExtractedQuestions.forEach((q,i)=>{
+  const card=document.createElement('div');card.className='exam';card.dataset.index=i;
+  const head=document.createElement('div');head.className='row';
+  const title=document.createElement('b');title.textContent=`برش ${i+1} — صفحه ${q._sourcePage} (شماره تشخیص‌داده‌شده: ${q._detectedNumber})`;
+  const badge=document.createElement('span');badge.className='pill';badge.textContent='پاسخ تعیین نشده';
+  head.append(title,badge);card.appendChild(head);
+  const im=document.createElement('img');im.src=q._imageDataUrl;im.alt='تصویر کامل سؤال '+(i+1);im.style.cssText='width:100%;max-height:650px;object-fit:contain;background:#fff;border:1px solid #e5eaf2;border-radius:10px;margin:10px 0;cursor:zoom-in';im.onclick=()=>{const w=window.open();if(w){w.document.write('<img src="'+q._imageDataUrl+'" style="max-width:100%;height:auto">');w.document.title='پیش‌نمایش سؤال '+(i+1)}};card.appendChild(im);
+  const lab=document.createElement('label');lab.textContent='پاسخ صحیح را معلم تعیین کند';
+  const sel=document.createElement('select');sel.dataset.key='correct_option';sel.innerHTML='<option value="">انتخاب پاسخ صحیح</option>'+['A','B','C','D'].map(x=>`<option value="${x}">گزینه ${x}</option>`).join('');sel.value='';lab.appendChild(sel);card.appendChild(lab);
+  root.appendChild(card);
+ });
+ document.getElementById('smartCount').textContent=smartExtractedQuestions.length+' سؤال تصویری شناسایی شد';
+}
+async function compressQuestionImage(dataUrl){
+ const img=await new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(im);im.onerror=rej;im.src=dataUrl;});
+ let w=img.naturalWidth,h=img.naturalHeight,scale=Math.min(1,1500/w);
+ const c=document.createElement('canvas');c.width=Math.round(w*scale);c.height=Math.round(h*scale);
+ c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+ let q=0.84,out=c.toDataURL('image/jpeg',q);
+ while(out.length>3800000 && q>0.55){q-=0.07;out=c.toDataURL('image/jpeg',q);}
+ if(out.length>4100000)throw new Error('تصویر سؤال خیلی بزرگ است؛ لطفاً PDF کم‌حجم‌تری استفاده کن.');
+ return out;
+}
+async function saveSmartQuestions(){
+ const cards=[...document.querySelectorAll('#smartQuestionCards .exam')],button=document.getElementById('smartSaveButton');
+ if(!cards.length){notice('سؤالی برای ذخیره وجود ندارد.');return}
+ const records=[];
+ for(const card of cards){const i=Number(card.dataset.index),correct=card.querySelector('[data-key="correct_option"]').value;if(!correct){notice('برای سؤال '+(i+1)+' پاسخ صحیح را خودت تعیین کن.');return}records.push({source:smartExtractedQuestions[i],correct});}
+ button.disabled=true;let saved=0;
+ try{
+  for(const r of records){
+   smartStatus(`در حال بارگذاری تصویر سؤال ${saved+1} از ${records.length}…`);
+   const compressed=await compressQuestionImage(r.source._imageDataUrl);const image=await uploadQuestionImage(compressed);
+   const payload={contentType:'image',image,correct:r.correct,grade:document.getElementById('smartGrade').value,track:document.getElementById('smartTrack').value,subject:document.getElementById('smartSubject').value.trim(),chapter:'',topic:'',difficulty:'متوسط',visibility:document.getElementById('smartVisibility').value};
+   await postTeacherQuestion(payload);saved++;
+  }
+  notice(`${saved} سؤال تصویری با موفقیت در بانک ذخیره شد.`);backToBank();
+ }catch(e){notice(`تا اینجا ${saved} سؤال ذخیره شد؛ خطا: ${e.message}`);smartStatus(e.message);}
+ finally{button.disabled=false;}
+}
 function showExamBuilder(){editingExamId='';pendingEditQuestionIds=[];const f=document.getElementById('examForm');f.reset();document.getElementById('examBuilderTitle').textContent='ساخت آزمون جدید';document.getElementById('examSubmitButton').textContent='ساخت و انتشار آزمون';hideAllViews();document.getElementById('examBuilder').classList.remove('hidden');renderClassChoices([]);refreshExamQuestions()}
 let assignedClassCache=null,assignedClassLoad=0,pendingClassChoiceIds=null;function renderClassChoices(selectedIds){const g=document.getElementById('examGrade').value,box=document.getElementById('examClasses');if(selectedIds!==undefined)pendingClassChoiceIds=selectedIds.map(String);const selected=pendingClassChoiceIds!==null?pendingClassChoiceIds:[...document.querySelectorAll('input[name="classChoice"]:checked')].map(x=>x.value);const ticket=++assignedClassLoad;box.textContent='در حال دریافت کلاس‌های مجاز شما…';const render=classes=>{if(ticket!==assignedClassLoad)return;const rows=(classes||[]).filter(c=>String(c.grade)===String(g));if(!rows.length){box.textContent='هنوز کلاسی به حساب شما تخصیص داده نشده است. از مدیر مدرسه بخواهید کلاس‌های شما را در بخش «تخصیص کلاس معلمان» ثبت کند.';return}box.innerHTML=rows.map(c=>`<label><input type="checkbox" name="classChoice" value="${esc(c.classId)}" ${selected.includes(String(c.classId))?'checked':''}> ${esc(c.label)}</label>`).join('');pendingClassChoiceIds=null};if(assignedClassCache){render(assignedClassCache);return}api('teacherAssignedClassOptions').then(d=>{assignedClassCache=d.classes||[];render(assignedClassCache)}).catch(e=>{if(ticket===assignedClassLoad)box.textContent=e.message})}
 let examQuestionCache=[],editingExamId="",pendingEditQuestionIds=[],copyingExamId="";
@@ -203,13 +268,13 @@ function loadTeacherExams(){hideAllViews();document.getElementById('teacherExamL
 function loadTeacherResults(examId){currentTeacherStudentId='';window.currentTeacherExamId=examId;hideAllViews();document.getElementById('teacherResultsView').classList.remove('hidden');const items=document.getElementById('teacherResultItems');items.textContent='در حال دریافت نتایج…';const release=document.getElementById('teacherResultRelease');release.classList.add('hidden');api('teacherExamResults',{examId}).then(d=>{document.getElementById('teacherResultsTitle').textContent='نتایج: '+d.exam.title;document.getElementById('teacherResultStats').innerHTML=`<div class="stat"><b>${d.stats.participants}</b>شرکت‌کننده</div><div class="stat"><b>${d.stats.submitted}</b>ثبت نهایی</div><div class="stat"><b>${d.stats.inProgress}</b>در حال آزمون</div><div class="stat"><b>${d.stats.average}%</b>میانگین نمرات</div><div class="stat"><b>${d.stats.highest}%</b>بالاترین نمره</div>`;release.classList.remove('hidden');if(d.exam.resultVisibility==='teacher_approval'){release.innerHTML='کارنامه دانش‌آموزان هنوز منتشر نشده است. پس از بررسی نتایج، با این دکمه کارنامه را برای همه شرکت‌کنندگان منتشر کن. <button class="btn" style="margin-top:10px" onclick="releaseTeacherResults()">تأیید و انتشار کارنامه‌ها</button>'}else{release.textContent='کارنامه بلافاصله پس از ثبت نهایی آزمون برای دانش‌آموز نمایش داده می‌شود.'}items.innerHTML='';if(!d.attempts.length){items.textContent='هنوز دانش‌آموزی در این آزمون شرکت نکرده است.';return}d.attempts.forEach(a=>{const el=document.createElement('div');el.className='exam';const name=(a.firstName+' '+a.lastName).trim()||('شناسه '+a.studentId);el.innerHTML=`<b>${esc(name)}</b><div class="muted">کلاس: ${esc(a.classId||'—')} | وضعیت: ${a.status==='submitted'?'ثبت نهایی':'در حال آزمون'}</div><div>نمره: ${a.status==='submitted'?a.score+'%':'—'} | درست: ${a.correct} | غلط: ${a.wrong} | بی‌پاسخ: ${a.unanswered}</div>`;if(a.status==='submitted'){const b=document.createElement('button');b.className='btn secondary';b.textContent='مشاهده پاسخ‌های دانش‌آموز';b.style.marginTop='8px';b.onclick=()=>loadTeacherAttempt(a.attemptId);el.appendChild(b)}items.appendChild(el)})}).catch(e=>{items.textContent=e.message})}
 function releaseTeacherResults(){const examId=window.currentTeacherExamId;if(!examId)return;if(!confirm('کارنامه این آزمون برای تمام دانش‌آموزان شرکت‌کننده منتشر شود؟'))return;const box=document.getElementById('teacherResultRelease');box.textContent='در حال انتشار کارنامه‌ها…';api('teacherReleaseResults',{examId}).then(()=>loadTeacherResults(examId)).catch(e=>{box.textContent=e.message})}
 function backToTeacherResults(){if(currentTeacherStudentId){loadTeacherStudentPerformance(currentTeacherStudentId);return}if(window.currentTeacherExamId)loadTeacherResults(window.currentTeacherExamId);else loadTeacherExams()}
-function loadTeacherAttempt(attemptId){hideAllViews();document.getElementById('teacherAttemptView').classList.remove('hidden');const box=document.getElementById('teacherAttemptQuestions');box.textContent='در حال دریافت پاسخ‌ها…';api('teacherAttemptDetail',{attemptId}).then(d=>{document.getElementById('teacherAttemptTitle').textContent='پاسخ‌های '+(d.student.firstName+' '+d.student.lastName);document.getElementById('teacherAttemptSummary').innerHTML=`<div class="stat"><b>${d.attempt.score}%</b>نمره</div><div class="stat"><b>${d.attempt.correct}</b>درست</div><div class="stat"><b>${d.attempt.wrong}</b>غلط</div><div class="stat"><b>${d.attempt.unanswered}</b>بی‌پاسخ</div>`;box.innerHTML='';d.questions.forEach(q=>{const el=document.createElement('div');el.className='exam';el.innerHTML=`<b>سؤال ${q.number}. ${esc(q.text)}</b><div class="attemptQuestionImages"></div><div>پاسخ دانش‌آموز: <b>${q.selected||'بدون پاسخ'}</b> | پاسخ صحیح: <b>${q.correct||'—'}</b></div><div class="${q.isCorrect?'good':'bad'}">${q.isCorrect?'پاسخ درست':(q.selected?'پاسخ نادرست':'بدون پاسخ')}</div>${q.explanation?`<div class="muted">توضیح: ${esc(q.explanation)}</div>`:''}`;appendQuestionImages(el.querySelector('.attemptQuestionImages'),q.image,260);box.appendChild(el)})}).catch(e=>{box.textContent=e.message})}
+function loadTeacherAttempt(attemptId){hideAllViews();document.getElementById('teacherAttemptView').classList.remove('hidden');const box=document.getElementById('teacherAttemptQuestions');box.textContent='در حال دریافت پاسخ‌ها…';api('teacherAttemptDetail',{attemptId}).then(d=>{document.getElementById('teacherAttemptTitle').textContent='پاسخ‌های '+(d.student.firstName+' '+d.student.lastName);document.getElementById('teacherAttemptSummary').innerHTML=`<div class="stat"><b>${d.attempt.score}%</b>نمره</div><div class="stat"><b>${d.attempt.correct}</b>درست</div><div class="stat"><b>${d.attempt.wrong}</b>غلط</div><div class="stat"><b>${d.attempt.unanswered}</b>بی‌پاسخ</div>`;box.innerHTML='';d.questions.forEach(q=>{const el=document.createElement('div');el.className='exam';el.innerHTML=`<b>سؤال ${q.number}${q.contentType==='image'?'':'. '+esc(q.text)}</b><div class="attemptQuestionImages"></div><div>پاسخ دانش‌آموز: <b>${q.selected||'بدون پاسخ'}</b> | پاسخ صحیح: <b>${q.correct||'—'}</b></div><div class="${q.isCorrect?'good':'bad'}">${q.isCorrect?'پاسخ درست':(q.selected?'پاسخ نادرست':'بدون پاسخ')}</div>${q.explanation?`<div class="muted">توضیح: ${esc(q.explanation)}</div>`:''}`;appendQuestionImages(el.querySelector('.attemptQuestionImages'),q.image,260);box.appendChild(el)})}).catch(e=>{box.textContent=e.message})}
 
 let currentTeacherClassId='',currentTeacherClassLabel='',currentTeacherStudentId='';
 function loadTeacherClasses(){hideAllViews();document.getElementById('teacherClassesView').classList.remove('hidden');const box=document.getElementById('teacherClassItems');box.textContent='در حال دریافت کلاس‌ها و آمار…';api('teacherClassDashboard').then(d=>{box.innerHTML='';if(!d.classes.length){box.textContent='هنوز کلاسی به حساب شما تخصیص داده نشده است. مدیر مدرسه باید کلاس‌های شما را در بخش مدیریت معلمان تعیین کند.';return}d.classes.forEach(c=>{const el=document.createElement('div');el.className='exam';const top=document.createElement('div');top.className='row';const title=document.createElement('b');title.textContent='کلاس '+c.label;const count=document.createElement('span');count.className='pill';count.textContent=c.students+' دانش‌آموز';top.append(title,count);el.appendChild(top);const stats=document.createElement('div');stats.className='grid';stats.style.marginTop='10px';[['دارای نتیجه',c.tested],['آزمون‌های معلم',c.exams],['میانگین کلاس',c.average+'%'],['بالاترین نمره',c.highest+'%']].forEach(pair=>{const st=document.createElement('div');st.className='stat';const b=document.createElement('b');b.textContent=pair[1];st.append(b,document.createTextNode(pair[0]));stats.appendChild(st)});el.appendChild(stats);const btn=document.createElement('button');btn.className='btn';btn.style.marginTop='10px';btn.textContent='مشاهده دانش‌آموزان و عملکرد';btn.onclick=()=>loadTeacherClassStudents(c.classId,c.label);el.appendChild(btn);box.appendChild(el)})}).catch(e=>{box.textContent=e.message})}
 function loadTeacherClassStudents(classId,label){currentTeacherClassId=String(classId);currentTeacherClassLabel=String(label||classId);hideAllViews();document.getElementById('teacherClassStudentsView').classList.remove('hidden');document.getElementById('teacherClassStudentsTitle').textContent='دانش‌آموزان کلاس '+currentTeacherClassLabel;const box=document.getElementById('teacherClassStudentItems');box.textContent='در حال دریافت فهرست دانش‌آموزان…';api('teacherClassStudents',{classId:currentTeacherClassId}).then(d=>{document.getElementById('teacherClassStats').innerHTML=`<div class="stat"><b>${d.stats.students}</b>کل دانش‌آموزان</div><div class="stat"><b>${d.stats.withResults}</b>دارای کارنامه</div><div class="stat"><b>${d.stats.exams}</b>آزمون‌های معلم</div>`;box.innerHTML='';if(!d.students.length){box.textContent='دانش‌آموز فعالی در این کلاس ثبت نشده است.';return}d.students.forEach(st=>{const el=document.createElement('div');el.className='exam';const top=document.createElement('div');top.className='row';const name=document.createElement('b');name.textContent=(st.firstName+' '+st.lastName).trim();const pill=document.createElement('span');pill.className='pill';pill.textContent=st.submitted+' نتیجه';top.append(name,pill);const meta=document.createElement('div');meta.className='muted';meta.textContent='آزمون‌های شرکت‌کرده: '+st.examCount+' | میانگین: '+st.average+'% | بهترین نمره: '+st.highest+'%';const btn=document.createElement('button');btn.className='btn secondary';btn.style.marginTop='8px';btn.textContent='مشاهده کارنامه و عملکرد';btn.onclick=()=>loadTeacherStudentPerformance(st.studentId);el.append(top,meta,btn);box.appendChild(el)})}).catch(e=>{box.textContent=e.message})}
 function backToClassStudents(){loadTeacherClassStudents(currentTeacherClassId,currentTeacherClassLabel)}
-function loadTeacherClassAnalytics(){hideAllViews();document.getElementById('teacherClassAnalyticsView').classList.remove('hidden');document.getElementById('teacherClassAnalyticsTitle').textContent='تحلیل سؤال‌های '+currentTeacherClassLabel;const box=document.getElementById('teacherClassAnalyticsItems');box.textContent='در حال تحلیل پاسخ‌های ثبت‌شده…';api('teacherClassQuestionAnalytics',{classId:currentTeacherClassId}).then(d=>{document.getElementById('teacherClassAnalyticsStats').innerHTML=`<div class="stat"><b>${d.stats.submittedAttempts}</b>آزمون ثبت‌شده</div><div class="stat"><b>${d.stats.questionsAnalyzed}</b>سؤال تحلیل‌شده</div><div class="stat"><b>${d.stats.averageWrongRate}%</b>میانگین درصد پاسخ غلط</div>`;box.innerHTML='';if(!d.questions.length){box.textContent='هنوز پاسخ ثبت‌شده‌ای برای تحلیل وجود ندارد.';return}d.questions.forEach((q,i)=>{const el=document.createElement('div');el.className='exam';const title=document.createElement('b');title.textContent=(i+1)+'. '+q.examTitle+' — '+q.subject;const question=document.createElement('div');question.style.margin='8px 0';question.textContent=q.questionText||('شناسه سؤال: '+q.questionId);const stats=document.createElement('div');stats.className='grid';[['تعداد پاسخ‌ها',q.total],['درست',q.correct],['غلط',q.wrong],['بی‌پاسخ',q.unanswered],['درصد غلط',q.wrongRate+'%']].forEach(x=>{const st=document.createElement('div');st.className='stat';const b=document.createElement('b');b.textContent=x[1];st.append(b,document.createTextNode(x[0]));stats.appendChild(st)});el.append(title,question,stats);box.appendChild(el)})}).catch(e=>{box.textContent=e.message})}
+function loadTeacherClassAnalytics(){hideAllViews();document.getElementById('teacherClassAnalyticsView').classList.remove('hidden');document.getElementById('teacherClassAnalyticsTitle').textContent='تحلیل سؤال‌های '+currentTeacherClassLabel;const box=document.getElementById('teacherClassAnalyticsItems');box.textContent='در حال تحلیل پاسخ‌های ثبت‌شده…';api('teacherClassQuestionAnalytics',{classId:currentTeacherClassId}).then(d=>{document.getElementById('teacherClassAnalyticsStats').innerHTML=`<div class="stat"><b>${d.stats.submittedAttempts}</b>آزمون ثبت‌شده</div><div class="stat"><b>${d.stats.questionsAnalyzed}</b>سؤال تحلیل‌شده</div><div class="stat"><b>${d.stats.averageWrongRate}%</b>میانگین درصد پاسخ غلط</div>`;box.innerHTML='';if(!d.questions.length){box.textContent='هنوز پاسخ ثبت‌شده‌ای برای تحلیل وجود ندارد.';return}d.questions.forEach((q,i)=>{const el=document.createElement('div');el.className='exam';const title=document.createElement('b');title.textContent=(i+1)+'. '+q.examTitle+' — '+q.subject;const question=document.createElement('div');question.style.margin='8px 0';question.textContent=q.contentType==='image'?'سؤال تصویری':'سؤال متنی: '+(q.questionText||('شناسه سؤال: '+q.questionId));if(q.contentType==='image')appendQuestionImages(question,q.questionImage,260);const stats=document.createElement('div');stats.className='grid';[['تعداد پاسخ‌ها',q.total],['درست',q.correct],['غلط',q.wrong],['بی‌پاسخ',q.unanswered],['درصد غلط',q.wrongRate+'%']].forEach(x=>{const st=document.createElement('div');st.className='stat';const b=document.createElement('b');b.textContent=x[1];st.append(b,document.createTextNode(x[0]));stats.appendChild(st)});el.append(title,question,stats);box.appendChild(el)})}).catch(e=>{box.textContent=e.message})}
 
 function loadTeacherStudentPerformance(studentId){currentTeacherStudentId=String(studentId);hideAllViews();document.getElementById('teacherStudentPerformanceView').classList.remove('hidden');const box=document.getElementById('teacherStudentHistory');box.textContent='در حال دریافت کارنامه دانش‌آموز…';document.getElementById('teacherStudentProgressChart').innerHTML='';document.getElementById('teacherStudentProgressLegend').textContent='';api('teacherStudentPerformance',{classId:currentTeacherClassId,studentId:currentTeacherStudentId}).then(d=>{const st=d.student;document.getElementById('teacherStudentPerformanceTitle').textContent='عملکرد '+st.firstName+' '+st.lastName;document.getElementById('teacherStudentStats').innerHTML=`<div class="stat"><b>${d.stats.attempts}</b>تلاش آزمون</div><div class="stat"><b>${d.stats.submitted}</b>آزمون ثبت نهایی</div><div class="stat"><b>${d.stats.average}%</b>میانگین</div><div class="stat"><b>${d.stats.highest}%</b>بهترین نمره</div><div class="stat"><b>${d.stats.lowest}%</b>کمترین نمره</div>`;box.innerHTML='';const submitted=d.history.filter(a=>a.status==='submitted').slice().reverse();renderTeacherStudentProgress(submitted);if(!d.history.length){box.textContent='این دانش‌آموز هنوز در آزمون‌های ثبت‌شده توسط شما شرکت نکرده است.';return}d.history.forEach(a=>{const el=document.createElement('div');el.className='exam';const title=document.createElement('b');title.textContent=a.title;const meta=document.createElement('div');meta.className='muted';meta.textContent=a.subject+' | '+(a.status==='submitted'?'ثبت نهایی':'در حال آزمون');const result=document.createElement('div');result.textContent='نمره: '+(a.status==='submitted'?a.score+'%':'—')+' | میانگین کلاس: '+(a.classAverage===null||a.classAverage===undefined?'—':a.classAverage+'%')+' | درست: '+a.correct+' | غلط: '+a.wrong+' | بی‌پاسخ: '+a.unanswered;el.append(title,meta,result);if(a.submittedAt){const date=document.createElement('div');date.className='muted';date.textContent='زمان ثبت: '+new Date(a.submittedAt).toLocaleString('fa-IR');el.appendChild(date)}if(a.status==='submitted'){const b=document.createElement('button');b.className='btn secondary';b.textContent='مشاهده پاسخ‌های آزمون';b.style.marginTop='8px';b.onclick=()=>loadTeacherAttempt(a.attemptId);el.appendChild(b)}box.appendChild(el)})}).catch(e=>{box.textContent=e.message})}
 function renderTeacherStudentProgress(items){const root=document.getElementById('teacherStudentProgressChart'),legend=document.getElementById('teacherStudentProgressLegend');if(!items.length){root.textContent='برای رسم نمودار، حداقل یک آزمون ثبت‌نهایی لازم است.';return}const W=Math.max(320,items.length*105+70),H=230,L=38,R=16,T=16,B=52,plotW=W-L-R,plotH=H-T-B;const x=i=>L+(items.length===1?plotW/2:i*plotW/(items.length-1));const y=v=>T+(100-Math.max(0,Math.min(100,Number(v)||0)))*plotH/100;const studentPts=items.map((a,i)=>`${x(i)},${y(a.score)}`).join(' ');const avgItems=items.filter(a=>a.classAverage!==null&&a.classAverage!==undefined);const avgPts=avgItems.map(a=>{const i=items.indexOf(a);return `${x(i)},${y(a.classAverage)}`}).join(' ');let svg=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="min-width:${W}px" role="img" aria-label="نمودار مقایسه نمره دانش‌آموز و میانگین کلاس">`;[0,25,50,75,100].forEach(v=>{svg+=`<line x1="${L}" y1="${y(v)}" x2="${W-R}" y2="${y(v)}" stroke="#e5eaf2"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end" font-size="10" fill="#6b7280">${v}</text>`});if(items.length>1)svg+=`<polyline points="${studentPts}" fill="none" stroke="#3157d5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;if(avgItems.length>1)svg+=`<polyline points="${avgPts}" fill="none" stroke="#138a54" stroke-width="2.5" stroke-dasharray="6 4" stroke-linecap="round"/>`;items.forEach((a,i)=>{svg+=`<circle cx="${x(i)}" cy="${y(a.score)}" r="4.5" fill="#3157d5"><title>نمره دانش‌آموز: ${a.score}%</title></circle>`;if(a.classAverage!==null&&a.classAverage!==undefined)svg+=`<circle cx="${x(i)}" cy="${y(a.classAverage)}" r="3.5" fill="#138a54"><title>میانگین کلاس: ${a.classAverage}%</title></circle>`;const label=String(a.title||'آزمون').slice(0,13);svg+=`<text x="${x(i)}" y="${H-27}" text-anchor="middle" font-size="10" fill="#475569">${esc(label)}</text>`});svg+='</svg>';root.innerHTML=svg;legend.textContent='🔵 نمره دانش‌آموز　 🟢 میانگین کلاس (خط‌چین)';}
@@ -228,27 +293,21 @@ function renderQuestions(qs){
  const root=document.getElementById('questions');
  root.innerHTML='';
  qs.forEach((q,i)=>{
-  const box=document.createElement('div');
-  box.className='qbox';
-  const title=document.createElement('p');
-  title.className='qtitle';
-  title.textContent=`سؤال ${i+1}. ${q.text||''}`;
-  box.appendChild(title);
-  if(q.image){appendQuestionImages(box,q.image,420);}
+  const box=document.createElement('div');box.className='qbox';
+  if(q.contentType==='image'){
+   const title=document.createElement('p');title.className='qtitle';title.textContent=`سؤال ${i+1}`;box.appendChild(title);
+   appendQuestionImages(box,q.image,640);
+  }else{
+   const title=document.createElement('p');title.className='qtitle';title.textContent=`سؤال ${i+1}. ${q.text||''}`;box.appendChild(title);
+   if(q.image)appendQuestionImages(box,q.image,420);
+  }
   [['A',q.a],['B',q.b],['C',q.c],['D',q.d]].forEach(([key,val])=>{
-   const label=document.createElement('label');
-   label.className='opt';
-   const input=document.createElement('input');
-   input.type='radio';input.name='q_'+q.questionId;input.value=key;
-   input.checked=answerState[q.questionId]===key;
-   input.onchange=()=>choose(q.questionId,key);
-   const span=document.createElement('span');
-   span.textContent=key+' ـ '+(val||'');
+   const label=document.createElement('label');label.className='opt';
+   const input=document.createElement('input');input.type='radio';input.name='q_'+q.questionId;input.value=key;input.checked=answerState[q.questionId]===key;input.onchange=()=>choose(q.questionId,key);
+   const span=document.createElement('span');span.textContent=q.contentType==='image'?key:(key+' ـ '+(val||''));
    label.append(input,span);box.appendChild(label);
-  });
-  root.appendChild(box);
- });
- updateCount();
+  });root.appendChild(box);
+ });updateCount();
 }
 function choose(qid,opt){answerState[qid]=opt;updateCount();saving++;api('answer',{attemptId:active.attemptId,questionId:qid,option:opt}).then(()=>{}).catch(e=>notice('ذخیره پاسخ با خطا روبه‌رو شد: '+e.message)).finally(()=>{saving=Math.max(0,saving-1)})}
 function updateCount(){document.getElementById('answeredCount').textContent=`پاسخ داده‌شده: ${Object.keys(answerState).length} از ${active.questions.length}`}
