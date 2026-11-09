@@ -14,7 +14,7 @@
 <section id="teacherView" class="card hidden">
  <div class="row"><h2>پنل دبیر</h2><span class="pill">بانک سؤالات</span></div>
  <div class="grid"><button class="btn" onclick="openQuestionForm()">➕ افزودن سؤال</button><button class="btn secondary" onclick="loadQuestions('personal')">📁 بانک شخصی من</button><button class="btn secondary" onclick="loadQuestions('shared')">🏫 بانک مشترک مدرسه</button><button class="btn secondary" onclick="showExamBuilder()">📝 ساخت آزمون</button><button class="btn secondary" onclick="loadTeacherExams()">📋 آزمون‌های ساخته‌شده</button><button class="btn secondary" onclick="loadTeacherClasses()">👥 کلاس‌ها و دانش‌آموزان</button></div>
- <div class="card"><div class="row"><h3 id="bankTitle">بانک سؤالات</h3><input id="searchQ" placeholder="جست‌وجو..." oninput="debouncedQuestions()"></div><div id="questionList"></div></div>
+ <div class="card"><div class="row"><h3 id="bankTitle">بانک سؤالات</h3><input id="searchQ" placeholder="جست‌وجو..." oninput="debouncedQuestions()"></div><div id="bankTransferTools" class="status hidden"><div class="row"><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="selectAllPersonal" onchange="toggleSelectAllPersonal(this.checked)"> انتخاب همه سؤال‌های نمایش‌داده‌شده</label><span id="transferSelectionCount" class="pill">۰ سؤال انتخاب شده</span><button class="btn" id="transferQuestionsButton" onclick="transferSelectedQuestions()" disabled>انتقال انتخاب‌شده‌ها به بانک مشترک</button></div><div class="muted">سؤال‌ها کپی نمی‌شوند؛ همان سؤال با حفظ سازنده و مشخصات به بانک مشترک مدرسه منتقل می‌شود. موارد تکراری منتقل نخواهند شد.</div></div><div id="questionList"></div></div>
 </section>
 <section id="adminTeacherClassesView" class="card hidden"><div class="row"><h2>تخصیص کلاس به معلمان</h2><button class="btn secondary" onclick="loadAdminTeacherClasses()">تازه‌سازی</button></div><div class="muted">مدیر مدرسه کلاس‌های هر معلم را مشخص می‌کند. این تخصیص، مبنای دسترسی معلم به فهرست کلاس‌ها و آمار دانش‌آموزان است.</div><div id="adminTeacherList">در حال دریافت فهرست معلمان…</div><div id="adminAssignBox" class="hidden"><hr><h3 id="adminAssignTitle">انتخاب کلاس‌ها</h3><div id="adminClassChoices" class="grid"></div><div class="row" style="margin-top:14px"><button class="btn" onclick="saveAdminTeacherClasses()">ذخیره تخصیص کلاس‌ها</button><button class="btn secondary" onclick="document.getElementById('adminAssignBox').classList.add('hidden')">انصراف</button></div></div></section>
 <section id="examBuilder" class="card hidden"><div class="row"><h2 id="examBuilderTitle">ساخت آزمون جدید</h2><button class="btn secondary" onclick="backToBank()">بازگشت</button></div><form id="examForm" onsubmit="saveTeacherExam(event)"><div class="grid"><label>عنوان آزمون<input name="title" required></label><label>پایه<select name="grade" id="examGrade" onchange="refreshExamQuestions()"><option value="10">دهم</option><option value="11" selected>یازدهم</option><option value="12">دوازدهم</option></select></label><label>رشته<select name="track" id="examTrack" onchange="refreshExamQuestions()"><option>تجربی</option><option>ریاضی</option></select></label><label>درس<input name="subject" id="examSubject" required placeholder="مثلاً زیست‌شناسی" oninput="refreshExamQuestions()"></label><label>مدت آزمون (دقیقه)<input name="duration" type="number" min="1" max="300" value="30" required></label><label>فصل‌ها (اختیاری)<input name="chapters"></label><label>شروع آزمون<input name="startAt" type="datetime-local" required></label><label>پایان آزمون<input name="endAt" type="datetime-local" required></label><label>نمره منفی<select name="negativeMarking"><option value="false" selected>نداشته باشد</option><option value="true">داشته باشد (هر ۳ غلط، یک درست کسر شود)</option></select></label><label>نمایش کارنامه به دانش‌آموز<select name="resultVisibility"><option value="immediate" selected>بلافاصله پس از پایان آزمون</option><option value="teacher_approval">پس از تأیید معلم</option></select></label></div><h3>انتخاب کلاس‌ها</h3><div id="examClasses" class="grid"></div><h3>انتخاب سؤال‌ها از بانک</h3><div class="muted">فقط سؤالات فعالِ هم‌پایه، هم‌رشته و هم‌درس که شخصی شما یا مشترک مدرسه باشند نمایش داده می‌شوند.</div><div id="examQuestionCandidates" class="exam">ابتدا درس را وارد کن.</div><div class="row"><span id="selectedQuestionCount" class="pill">۰ سؤال انتخاب شده</span><button class="btn" id="examSubmitButton" type="submit">ساخت و انتشار آزمون</button></div></form></section>
@@ -78,6 +78,7 @@ function hideNotice(){document.getElementById('notice').classList.add('hidden')}
 function api(action,params={}){return new Promise((resolve,reject)=>{if(!session){reject(new Error('نشست ورود پیدا نشد. مینی‌اپ را از داخل ربات باز کن.'));return}const cb='baleCb_'+Date.now()+'_'+Math.floor(Math.random()*1e6);const q=new URLSearchParams({action,session,callback:cb,_:Date.now(),...params});const sc=document.createElement('script');const timeout=setTimeout(()=>{clean();reject(new Error('پاسخی از سرور دریافت نشد؛ اتصال اینترنت را بررسی کن.'))},30000);function clean(){clearTimeout(timeout);delete window[cb];sc.remove()}window[cb]=(data)=>{clean();if(data&&data.ok)resolve(data);else reject(new Error(data&&data.error||'خطای نامشخص'))};sc.onerror=()=>{clean();reject(new Error('ارتباط با سرور برقرار نشد.'))};sc.src=API_URL+'?'+q.toString();document.body.appendChild(sc)})}
 
 let currentScope='personal',editQuestionId='',selectedImageUrl='',questionTimer=null;
+let selectedPersonalQuestionIds=new Set();
 function hideAllViews(){['teacherView','questionForm','examBuilder','examCopyBuilder','teacherExamList','teacherResultsView','teacherAttemptView','teacherClassesView','teacherClassStudentsView','teacherStudentPerformanceView','teacherClassAnalyticsView','adminTeacherClassesView','smartImportView','listView','examView','resultView'].forEach(id=>document.getElementById(id).classList.add('hidden'))}
 function openQuestionForm(q){editQuestionId=q?q.questionId:'';selectedImageUrl=q?q.image||'':'';hideAllViews();document.getElementById('questionForm').classList.remove('hidden');document.getElementById('qFormTitle').textContent=q?'ویرایش سؤال':'افزودن سؤال';const f=document.getElementById('qForm');f.reset();if(q){Object.keys(q).forEach(k=>{if(f.elements[k])f.elements[k].value=q[k]||''})}f.elements.contentType.value=q?(q.contentType||'text'):'text';setQuestionContentType(f.elements.contentType.value);document.getElementById('imageState').textContent=selectedImageUrl?'تصویر قبلی متصل است.':''}
 function setQuestionContentType(type){const image=String(type)==='image',wrap=document.getElementById('textQuestionFields'),f=document.getElementById('qForm');wrap.classList.toggle('hidden',image);['text','a','b','c','d'].forEach(k=>{const el=f.elements[k];if(el){el.required=!image;el.disabled=image;if(image)el.value=''}});document.getElementById('questionImage').required=image&&!selectedImageUrl;document.getElementById('questionImageLabel').querySelector('label');document.getElementById('questionImageLabel').firstChild.textContent=image?'تصویر کامل سؤال و هر چهار گزینه (الزامی)':'تصویر سؤال (اختیاری)'}
@@ -94,7 +95,52 @@ function getDisplayImageUrl(raw){
 }
 function parseQuestionImages(raw){try{const v=JSON.parse(String(raw||''));if(Array.isArray(v))return v.map(String).filter(Boolean);if(typeof v==='string'&&v)return [v]}catch(e){}return raw?[String(raw)]:[]}
 function appendQuestionImages(parent,raw,maxHeight){parseQuestionImages(raw).forEach((url,i)=>{const img=document.createElement('img');img.src=getDisplayImageUrl(url);img.referrerPolicy='no-referrer';img.alt='تصویر '+(i+1)+' سؤال؛ برای بزرگ‌نمایی لمس کنید';img.style.cssText='display:block;max-width:100%;max-height:'+(maxHeight||360)+'px;height:auto;object-fit:contain;margin:10px auto;border-radius:10px;cursor:zoom-in';img.onclick=()=>openQuestionImage(url);parent.appendChild(img)})}
-function loadQuestions(scope){currentScope=scope||currentScope;document.getElementById('bankTitle').textContent=currentScope==='personal'?'بانک شخصی من':'بانک مشترک مدرسه';api('teacherQuestions',{scope:currentScope,q:document.getElementById('searchQ').value}).then(d=>{const root=document.getElementById('questionList');root.innerHTML='';if(!d.questions.length){root.innerHTML='<p class="muted">سؤالی در این بخش ثبت نشده است.</p>';return}d.questions.forEach(q=>{const el=document.createElement('div');el.className='exam';el.innerHTML=`<b>${esc(q.subject)} | ${esc(q.chapter)} | ${esc(q.difficulty)} | ${q.contentType==='image'?'سؤال تصویری':'سؤال متنی'}</b>${q.contentType==='image'?'':'<p>'+esc(q.text)+'</p>'}<div class="muted">پایه ${esc(q.grade)} | ${esc(q.track)} | ${q.visibility==='shared'?'مشترک':'شخصی'} | ${q.status==='active'?'فعال':'غیرفعال'}</div><div class="questionImages"></div><div class="row"></div>`;appendQuestionImages(el.querySelector('.questionImages'),q.image,220);const row=el.querySelector('.row');if(q.canEdit){const e=document.createElement('button');e.className='btn secondary';e.textContent='ویرایش';e.onclick=()=>openQuestionForm(q);const t=document.createElement('button');t.className='btn danger';t.textContent=q.status==='active'?'غیرفعال‌کردن':'فعال‌کردن';t.onclick=()=>api('teacherToggleQuestion',{questionId:q.questionId}).then(()=>loadQuestions(currentScope)).catch(x=>notice(x.message));row.append(e,t)}root.appendChild(el)})}).catch(e=>notice(e.message))}
+function updateTransferSelectionUi(){
+ const count=selectedPersonalQuestionIds.size;
+ document.getElementById('transferSelectionCount').textContent=count+' سؤال انتخاب شده';
+ document.getElementById('transferQuestionsButton').disabled=count===0;
+}
+function toggleSelectAllPersonal(checked){
+ document.querySelectorAll('[data-personal-question-id]').forEach(el=>{el.checked=!!checked;const id=el.dataset.personalQuestionId;if(checked)selectedPersonalQuestionIds.add(id);else selectedPersonalQuestionIds.delete(id)});
+ updateTransferSelectionUi();
+}
+async function transferSelectedQuestions(){
+ const ids=Array.from(selectedPersonalQuestionIds);
+ if(!ids.length){notice('ابتدا سؤال‌های موردنظر را انتخاب کن.');return}
+ if(!confirm('تعداد '+ids.length+' سؤال انتخاب شده است. این سؤال‌ها با حفظ سازنده و مشخصات به بانک مشترک مدرسه منتقل شوند؟ موارد تکراری منتقل نخواهند شد.'))return;
+ const button=document.getElementById('transferQuestionsButton');button.disabled=true;button.textContent='در حال انتقال…';
+ try{
+  const result=await api('teacherTransferQuestions',{questionIds:ids.join(',')});
+  selectedPersonalQuestionIds.clear();
+  notice(result.message+(result.duplicateCount?' شناسهٔ سؤال‌های تکراری: '+result.duplicates.map(x=>x.questionId).join('، '):''));
+  document.getElementById('selectAllPersonal').checked=false;
+  await loadQuestions('personal');
+ }catch(e){notice(e.message)}finally{button.textContent='انتقال انتخاب‌شده‌ها به بانک مشترک';updateTransferSelectionUi()}
+}
+function loadQuestions(scope){
+ currentScope=scope||currentScope;
+ document.getElementById('bankTitle').textContent=currentScope==='personal'?'بانک شخصی من':'بانک مشترک مدرسه';
+ const tools=document.getElementById('bankTransferTools');tools.classList.toggle('hidden',currentScope!=='personal');
+ if(currentScope!=='personal'){selectedPersonalQuestionIds.clear();document.getElementById('selectAllPersonal').checked=false;updateTransferSelectionUi()}
+ api('teacherQuestions',{scope:currentScope,q:document.getElementById('searchQ').value}).then(d=>{
+  const root=document.getElementById('questionList');root.innerHTML='';
+  if(!d.questions.length){root.innerHTML='<p class="muted">سؤالی در این بخش ثبت نشده است.</p>';return}
+  d.questions.forEach(q=>{
+   const el=document.createElement('div');el.className='exam';
+   el.innerHTML=`<b>${esc(q.subject)} | ${esc(q.chapter)} | ${esc(q.difficulty)} | ${q.contentType==='image'?'سؤال تصویری':'سؤال متنی'}</b>${q.contentType==='image'?'':'<p>'+esc(q.text)+'</p>'}<div class="muted">پایه ${esc(q.grade)} | ${esc(q.track)} | ${q.visibility==='shared'?'مشترک':'شخصی'} | ${q.status==='active'?'فعال':'غیرفعال'}</div><div class="questionImages"></div><div class="row"></div>`;
+   appendQuestionImages(el.querySelector('.questionImages'),q.image,220);
+   const row=el.querySelector('.row');
+   if(currentScope==='personal'&&q.canEdit){
+    const label=document.createElement('label');label.style.cssText='display:flex;gap:8px;align-items:center;margin-left:auto';
+    const cb=document.createElement('input');cb.type='checkbox';cb.dataset.personalQuestionId=q.questionId;cb.checked=selectedPersonalQuestionIds.has(q.questionId);cb.onchange=()=>{if(cb.checked)selectedPersonalQuestionIds.add(q.questionId);else selectedPersonalQuestionIds.delete(q.questionId);updateTransferSelectionUi()};
+    label.append(cb,document.createTextNode('انتخاب برای انتقال'));row.append(label);
+   }
+   if(q.canEdit){const e=document.createElement('button');e.className='btn secondary';e.textContent='ویرایش';e.onclick=()=>openQuestionForm(q);const t=document.createElement('button');t.className='btn danger';t.textContent=q.status==='active'?'غیرفعال‌کردن':'فعال‌کردن';t.onclick=()=>api('teacherToggleQuestion',{questionId:q.questionId}).then(()=>loadQuestions(currentScope)).catch(x=>notice(x.message));row.append(e,t)}
+   root.appendChild(el);
+  });
+  updateTransferSelectionUi();
+ }).catch(e=>notice(e.message));
+}
 function uploadQuestionImage(data){return new Promise((resolve,reject)=>{
  const requestId=Array.from(crypto.getRandomValues(new Uint8Array(16))).map(x=>x.toString(16).padStart(2,'0')).join('');
  let frame=document.getElementById('imageUploadFrame');if(!frame){frame=document.createElement('iframe');frame.name='imageUploadFrame';frame.id='imageUploadFrame';frame.style.display='none';document.body.appendChild(frame)}
