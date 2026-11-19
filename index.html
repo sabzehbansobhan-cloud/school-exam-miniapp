@@ -290,12 +290,6 @@ html.switching::before,html.switching::after,html.switching body::before,html.sw
 <section id="teacherStudentPerformanceView" class="card hidden"><div class="row"><h2 id="teacherStudentPerformanceTitle">عملکرد دانش‌آموز</h2><button class="btn secondary" onclick="backToClassStudents()">بازگشت به فهرست کلاس</button></div><div id="teacherStudentStats" class="grid"></div><section class="exam"><h3>📈 نمودار پیشرفت دانش‌آموز</h3><div class="muted">مقایسه نمره دانش‌آموز با میانگین کلاس در آزمون‌های ثبت‌نهایی</div><div id="teacherStudentProgressChart" style="width:100%;overflow-x:auto;margin-top:12px"></div><div id="teacherStudentProgressLegend" class="muted"></div></section><div id="teacherStudentHistory"></div></section>
 <section id="smartImportView" class="card hidden">
  <div class="row"><h2>✨ ورود هوشمند سؤال‌ها</h2><button class="btn secondary" onclick="backToBank()">بازگشت</button></div>
-
-
-
-
-
-
  <div class="status">تصویر سؤال‌ها را بارگذاری کن. هوش مصنوعی متن و گزینه‌ها را استخراج می‌کند؛ پاسخ صحیح فقط در صورت وجود پاسخ‌نامه و اطمینان کافی ثبت می‌شود. تمام سؤال‌ها قبل از ورود به بانک قابل ویرایش هستند.</div>
  <div class="grid">
   <label>پایه<select id="smartGrade"><option value="10">دهم</option><option value="11" selected>یازدهم</option><option value="12">دوازدهم</option></select></label>
@@ -561,12 +555,6 @@ function saveTeacherExam(ev){ev.preventDefault();const f=ev.target,btn=f.querySe
 function toDateTimeLocal(value){if(!value)return '';const d=new Date(value);if(isNaN(d.getTime()))return '';const local=new Date(d.getTime()-d.getTimezoneOffset()*60000);return local.toISOString().slice(0,16)}
 function editTeacherExam(examId){notice('در حال دریافت اطلاعات آزمون…');api('teacherExamForEdit',{examId}).then(d=>{const x=d.exam,f=document.getElementById('examForm');editingExamId=examId;pendingEditQuestionIds=d.questionIds||[];f.elements.namedItem('title').value=x.title;f.elements.namedItem('grade').value=x.grade;f.elements.namedItem('track').value=x.track;f.elements.namedItem('subject').value=x.subject;f.elements.namedItem('duration').value=x.duration;f.elements.namedItem('chapters').value=x.chapters;f.elements.namedItem('startAt').value=toDateTimeLocal(x.startAt);f.elements.namedItem('endAt').value=toDateTimeLocal(x.endAt);f.elements.namedItem('negativeMarking').value=x.negativeMarking;f.elements.namedItem('resultVisibility').value=x.resultVisibility;document.getElementById('examBuilderTitle').textContent='ویرایش آزمون';document.getElementById('examSubmitButton').textContent='ذخیره تغییرات';hideAllViews();document.getElementById('examBuilder').classList.remove('hidden');let editClassIds=[];try{editClassIds=JSON.parse(x.classes)}catch(e){editClassIds=String(x.classes||'').split(',').map(v=>v.trim()).filter(Boolean)}renderClassChoices(editClassIds);refreshExamQuestions();hideNotice()}).catch(e=>notice(e.message))}
 function openCopyExam(examId){copyingExamId=examId;notice('در حال دریافت اطلاعات آزمون مبدا…');api('teacherExamCopyInfo',{examId}).then(d=>{const x=d.exam;const f=document.getElementById('copyExamForm');f.reset();f.elements.namedItem('title').value='کپی - '+x.title;f.elements.namedItem('startAt').value='';f.elements.namedItem('endAt').value='';document.getElementById('copyExamSummary').textContent=`${x.subject} | پایه ${x.grade} ${x.track} | کلاس‌ها: ${x.classes} | ${x.questionCount} سؤال | ${x.duration} دقیقه | نمره منفی: ${x.negativeMarking==='true'?'دارد':'ندارد'} | کارنامه: ${x.resultVisibility==='teacher_approval'?'پس از تأیید معلم':'بلافاصله'}`;hideAllViews();document.getElementById('examCopyBuilder').classList.remove('hidden');hideNotice()}).catch(e=>notice(e.message))}
-
-
-
-
-
-
 function submitCopyExam(ev){ev.preventDefault();if(!copyingExamId){notice('آزمون مبدا مشخص نیست؛ دوباره از فهرست آزمون‌ها اقدام کن.');return}const f=ev.target,b=f.querySelector('button[type=submit]');const start=f.elements.namedItem('startAt').value,end=f.elements.namedItem('endAt').value;if(!start||!end){notice('زمان شروع و پایان آزمون جدید را مشخص کن.');return}const p={sourceExamId:copyingExamId,title:f.elements.namedItem('title').value.trim(),startAt:new Date(start).toISOString(),endAt:new Date(end).toISOString()};b.disabled=true;notice('در حال ساخت نسخه مستقل آزمون…');api('teacherCopyExam',p).then(d=>{copyingExamId='';notice(d.message);loadTeacherExams()}).catch(e=>notice(e.message)).finally(()=>b.disabled=false)}
 function cancelTeacherExam(examId,title){if(!confirm('آزمون «'+title+'» لغو شود؟\n\nپس از لغو، دانش‌آموزان جدید نمی‌توانند آن را شروع کنند. تلاش‌هایی که قبلاً آغاز شده‌اند تا پایان زمان خود قابل ادامه خواهند بود. پاسخ‌ها و کارنامه‌ها حذف نمی‌شوند.'))return;notice('در حال لغو آزمون…');api('teacherCancelExam',{examId}).then(d=>{notice(d.message);loadTeacherExams()}).catch(e=>notice(e.message))}
 function loadTeacherExams(){hideAllViews();document.getElementById('teacherExamList').classList.remove('hidden');const box=document.getElementById('teacherExamItems');box.textContent='در حال دریافت آزمون‌ها…';api('teacherExamList').then(d=>{box.innerHTML='';if(!d.exams.length){box.textContent='هنوز آزمونی نساخته‌ای.';return}d.exams.forEach(x=>{const el=document.createElement('div');el.className='exam';const statusLabel=({'active':'فعال','published':'منتشرشده','open':'باز','scheduled':'زمان‌بندی‌شده','cancelled':'لغوشده','canceled':'لغوشده'})[String(x.status).toLowerCase()]||x.status;el.innerHTML=`<b>${esc(x.title)}</b><div class="muted">${esc(x.subject)} | پایه ${esc(x.grade)} ${esc(x.track)} | کلاس‌ها: ${esc(x.classes)} | ${x.questionCount} سؤال | ${x.duration} دقیقه</div><div class="muted">شروع: ${esc(x.startAt)} | پایان: ${esc(x.endAt)} | وضعیت: ${esc(statusLabel)}</div>`;const actions=document.createElement('div');actions.className='row';actions.style.marginTop='10px';if(x.canEdit){const edit=document.createElement('button');edit.className='btn secondary';edit.textContent='ویرایش آزمون';edit.onclick=()=>editTeacherExam(x.examId);actions.appendChild(edit)}else if(!['cancelled','canceled'].includes(String(x.status).toLowerCase())){const note=document.createElement('span');note.className='muted';note.textContent='به دلیل شروع آزمون توسط حداقل یک دانش‌آموز، ویرایش غیرفعال است.';actions.appendChild(note)}const copy=document.createElement('button');copy.className='btn secondary';copy.textContent='کپی آزمون';copy.onclick=()=>openCopyExam(x.examId);actions.appendChild(copy);const b=document.createElement('button');b.className='btn';b.textContent='مشاهده نتایج و پاسخ‌ها';b.onclick=()=>loadTeacherResults(x.examId);actions.appendChild(b);if(x.canCancel){const cancel=document.createElement('button');cancel.className='btn danger';cancel.textContent='لغو آزمون';cancel.onclick=()=>cancelTeacherExam(x.examId,x.title);actions.appendChild(cancel)}el.appendChild(actions);box.appendChild(el)})}).catch(e=>{box.textContent=e.message})}
@@ -736,9 +724,3 @@ const prime=()=>{const st=[...document.querySelectorAll('style')].map(x=>x.textC
 /*end-perf2-js*/
 loadBootstrap();
 </script></body></html>
-
-
-
-
-
-
