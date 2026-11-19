@@ -720,7 +720,7 @@ new MutationObserver(ms=>{let o=0;for(const m of ms)for(const n of m.addedNodes)
 /*perf2-js*/(function(){const H=document.documentElement;let t=0,on=0;
 addEventListener('scroll',()=>{if(!on){on=1;H.classList.add('scrolling')}clearTimeout(t);t=setTimeout(()=>{on=0;H.classList.remove('scrolling')},160)},{passive:true,capture:true});
 const prime=()=>{const st=[...document.querySelectorAll('style')].map(x=>x.textContent).join(''),seen=new Set();window._pr=[];(st.match(/url\("data:image\/svg\+xml,[^"]+"\)/g)||[]).forEach(u=>{u=u.slice(5,-2);if(seen.has(u))return;seen.add(u);const i=new Image();i.decoding='async';i.src=u;window._pr.push(i);i.decode&&i.decode().catch(()=>{})})};
-(window.requestIdleCallback||setTimeout)(prime,1500)})();
+window.requestIdleCallback?requestIdleCallback(prime,{timeout:4000}):setTimeout(prime,1500)})();
 /*end-perf2-js*/
 loadBootstrap();
 </script></body></html>
